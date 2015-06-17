@@ -75,7 +75,7 @@ const GLchar* fragmentSource =
     "   if(Texcoord.y < 0.5)"
     "       finalColor = texture(texKitten, Texcoord);"
     "   else"
-    "       finalColor = texture(texKitten, vec2(Texcoord.x, 1.0-Texcoord.y));"
+    "       finalColor = texture(texKitten, vec2(Texcoord.x + sin(Texcoord.y * 60.0 + time * 2.0) / 200.0, 1.0 - Texcoord.y)) * vec4(0.7, 0.7, 1.0, 1.0);"
     "}";
 
 int main(int argc, const char * argv[]) {
