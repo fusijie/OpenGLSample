@@ -9,7 +9,6 @@
 #define GLFW_INCLUDE_GLCOREARB
 #include <iostream>
 #include "glfw3.h"
-#include <cmath>
 
 void error_callback(int error, const char* description)
 {
@@ -53,16 +52,20 @@ void checkProgram(GLint program)
 const GLchar* vertexSource =
 "#version 150 core\n"
 "in vec3 position;"
+"in vec3 color;"
+"out vec3 Color;"
 "void main() {"
+"   Color = color;"
 "   gl_Position = vec4(position, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
 "#version 150 core\n"
+"in vec3 Color;"
 "out vec4 finalColor;"
 "uniform vec3 color;"
 "void main() {"
-"   finalColor = vec4(color, 1.0);"
+"   finalColor = vec4(Color, 1.0);"
 "}";
 
 int main(int argc, const char * argv[]) {
@@ -104,9 +107,14 @@ int main(int argc, const char * argv[]) {
     
     //Create a VBO, and copy vertices data to it.
     float vertices[]={
-        0.0f, 0.5f, 0.0f,
-        0.5f,-0.5f, 0.0f,
-        -0.5f,-0.5f, 0.0f
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Top-left
+        0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Top-right
+        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Bottom-right
+        
+        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Bottom-right
+        -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, // Bottom-left
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f  // Top-left
+
     };
     
     GLuint vbo;
@@ -136,9 +144,11 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
+    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+    glEnableVertexAttribArray(colAttrib);
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
 
-    GLint colUnif = glGetUniformLocation(shaderProgram, "color");
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -146,13 +156,8 @@ int main(int argc, const char * argv[]) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        //Calculate uniform color
-        auto t_now = std::chrono::high_resolution_clock::now();
-        auto time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now-t_start).count();
-        glUniform3f(colUnif, (std::sin(time*4.0f)+1.0f), 0.0f, 0.0f);
-
         //Draw
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
