@@ -9,6 +9,7 @@
 #define GLFW_INCLUDE_GLCOREARB
 #include <iostream>
 #include "glfw3.h"
+#include <cmath>
 
 void error_callback(int error, const char* description)
 {
@@ -66,6 +67,9 @@ const GLchar* fragmentSource =
 
 int main(int argc, const char * argv[]) {
     // insert code here...
+    
+    auto t_start = std::chrono::high_resolution_clock::now();
+
     GLFWwindow* window;
     
     glfwSetErrorCallback(error_callback);
@@ -135,7 +139,6 @@ int main(int argc, const char * argv[]) {
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
     GLint colUnif = glGetUniformLocation(shaderProgram, "color");
-    glUniform3f(colUnif, 1.0f, 0.0f, 0.0f);
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -143,6 +146,11 @@ int main(int argc, const char * argv[]) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
+        //Calculate uniform color
+        auto t_now = std::chrono::high_resolution_clock::now();
+        auto time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now-t_start).count();
+        glUniform3f(colUnif, (std::sin(time*4.0f)+1.0f), 0.0f, 0.0f);
+
         //Draw
         glDrawArrays(GL_TRIANGLES, 0, 3);
         
