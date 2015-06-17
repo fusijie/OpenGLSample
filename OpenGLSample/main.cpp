@@ -72,8 +72,10 @@ const GLchar* fragmentSource =
     "uniform sampler2D texPuppy;"
     "uniform float time;"
     "void main() {"
-    "   float factor = (sin(time * 3.0) + 1.0) / 2.0;"
-    "   finalColor = mix(texture(texKitten, Texcoord), texture(texPuppy, Texcoord), factor);"
+    "   if(Texcoord.y < 0.5)"
+    "       finalColor = texture(texKitten, Texcoord);"
+    "   else"
+    "       finalColor = texture(texKitten, vec2(Texcoord.x, 1.0-Texcoord.y));"
     "}";
 
 int main(int argc, const char * argv[]) {
