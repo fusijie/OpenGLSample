@@ -110,17 +110,23 @@ int main(int argc, const char * argv[]) {
         -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Top-left
         0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Top-right
         0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Bottom-right
-        
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Bottom-right
         -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, // Bottom-left
-        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f  // Top-left
-
     };
     
+    GLuint element[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element), element, GL_STATIC_DRAW);
     
     //Shade operation
     GLint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -157,7 +163,7 @@ int main(int argc, const char * argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         
         //Draw
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
