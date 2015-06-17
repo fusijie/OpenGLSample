@@ -165,9 +165,9 @@ const GLchar* screenFragmentSource =
     "in vec2 Texcoord;"
     "out vec4 finalColor;"
     "uniform sampler2D texFramebuffer;"
+    "uniform int samplecount;"
     "const float blurSizeH = 1.0/300.0;"
     "const float blurSizeV = 1.0/200.0;"
-    "const int samplecount = 4;"
     "void main(){"
     "   vec4 sum = vec4(0.0);"
     "   for(int x=-samplecount;x<=samplecount;x++)"
@@ -326,8 +326,8 @@ int main(int argc, const char * argv[]) {
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
     
-    //MVP
-    glUseProgram(sceneShaderProgram);//It will calls invalid operation without this line.
+    //Scene MVP
+    glUseProgram(sceneShaderProgram);
     GLint uniModel = glGetUniformLocation(sceneShaderProgram, "model");
     
     glm::mat4 view = glm::lookAt(glm::vec3(2.0f,2.0f,2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f));
@@ -338,9 +338,13 @@ int main(int argc, const char * argv[]) {
     GLint uniProject = glGetUniformLocation(sceneShaderProgram, "project");
     glUniformMatrix4fv(uniProject, 1, GL_FALSE, glm::value_ptr(project));
     
-    //uniform
+    //Scene uniform
     GLint uniOverrideColor = glGetUniformLocation(sceneShaderProgram, "overrideColor");
     
+    //Screen uniform
+    glUseProgram(screenShaderProgram);
+    GLint uniSampleCount = glGetUniformLocation(screenShaderProgram, "samplecount");
+
     auto t_start = std::chrono::high_resolution_clock::now();
     
     while (!glfwWindowShouldClose(window)) {
@@ -404,6 +408,8 @@ int main(int argc, const char * argv[]) {
             
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texColorbuffer);
+            
+            glUniform1i(uniSampleCount, int(time)%10);
             
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
