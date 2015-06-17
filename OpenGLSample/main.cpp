@@ -64,8 +64,9 @@ const GLchar* vertexSource =
     "uniform mat4 model;"
     "uniform mat4 view;"
     "uniform mat4 project;"
+    "uniform vec3 overrideColor;"
     "void main() {"
-    "   Color = color;"
+    "   Color = overrideColor * color;"
     "   Texcoord = texcoord;"
     "   gl_Position = project* view * model * vec4(position, 1.0);"
     "}";
@@ -158,7 +159,14 @@ int main(int argc, const char * argv[]) {
         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
         0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
         -0.5f,  0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+        
+        -1.0f, -1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        1.0f,  1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        1.0f,  1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        -1.0f,  1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
     };
 
     GLuint vbo;
@@ -231,7 +239,7 @@ int main(int argc, const char * argv[]) {
     //MVP
     GLint uniModel = glGetUniformLocation(shaderProgram, "model");
 
-    glm::mat4 view = glm::lookAt(glm::vec3(1.2f,1.2f,1.2f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f));
+    glm::mat4 view = glm::lookAt(glm::vec3(2.0f,2.0f,2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,1.0f));
     GLint uniView = glGetUniformLocation(shaderProgram, "view");
     glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
     
@@ -239,13 +247,16 @@ int main(int argc, const char * argv[]) {
     GLint uniProject = glGetUniformLocation(shaderProgram, "project");
     glUniformMatrix4fv(uniProject, 1, GL_FALSE, glm::value_ptr(project));
     
+    //uniform
+    GLint uniOverrideColor = glGetUniformLocation(shaderProgram, "overrideColor");
+
     auto t_start = std::chrono::high_resolution_clock::now();
     glEnable(GL_DEPTH_TEST);
 
     while (!glfwWindowShouldClose(window)) {
         
         //Clear
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //Calculate
@@ -259,6 +270,27 @@ int main(int argc, const char * argv[]) {
 
         //Draw
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        glEnable(GL_STENCIL_TEST);
+        glStencilFunc(GL_ALWAYS, 1, 0xff);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0xff);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        
+        glDepthMask(GL_FALSE);
+        glDrawArrays(GL_TRIANGLES, 36, 6);
+        glDepthMask(GL_TRUE);
+        
+        glStencilFunc(GL_EQUAL, 1, 0xff);
+        glStencilMask(0x00);
+        
+        model = glm::scale(glm::translate(model, glm::vec3(0,0,-1)), glm::vec3(1,1,-1));
+        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform3f(uniOverrideColor, 0.3f, 0.3f, 0.3f);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glUniform3f(uniOverrideColor, 1.0f, 1.0f, 1.0f);
+        
+        glDisable(GL_STENCIL_TEST);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
