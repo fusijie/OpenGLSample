@@ -63,7 +63,6 @@ const GLchar* fragmentSource =
 "#version 150 core\n"
 "in vec3 Color;"
 "out vec4 finalColor;"
-"uniform vec3 color;"
 "void main() {"
 "   finalColor = vec4(Color, 1.0);"
 "}";
@@ -152,7 +151,6 @@ int main(int argc, const char * argv[]) {
     GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
     glEnableVertexAttribArray(colAttrib);
     glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
-
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -171,6 +169,7 @@ int main(int argc, const char * argv[]) {
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
     glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
     glDeleteVertexArrays(1, &vao);
     
     glfwDestroyWindow(window);
