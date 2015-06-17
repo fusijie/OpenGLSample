@@ -15,6 +15,7 @@
 		854D5C041B31112A006BF4B1 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C031B31112A006BF4B1 /* libglfw3.a */; };
 		854D5C0E1B312745006BF4B1 /* libSOIL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C0D1B312745006BF4B1 /* libSOIL.a */; };
 		854D5C111B31288F006BF4B1 /* kitten.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 854D5C101B31288A006BF4B1 /* kitten.png */; };
+		854D5C151B313F7B006BF4B1 /* puppy.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 854D5C141B313F75006BF4B1 /* puppy.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,6 +25,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				854D5C151B313F7B006BF4B1 /* puppy.png in Copy Files */,
 				854D5C111B31288F006BF4B1 /* kitten.png in Copy Files */,
 			);
 			name = "Copy Files";
@@ -44,6 +46,7 @@
 		854D5C0C1B312738006BF4B1 /* SOIL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SOIL.h; path = OpenGLSample/SOIL/SOIL.h; sourceTree = "<group>"; };
 		854D5C0D1B312745006BF4B1 /* libSOIL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSOIL.a; path = OpenGLSample/SOIL/libSOIL.a; sourceTree = "<group>"; };
 		854D5C101B31288A006BF4B1 /* kitten.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kitten.png; path = OpenGLSample/Resources/kitten.png; sourceTree = "<group>"; };
+		854D5C141B313F75006BF4B1 /* puppy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = puppy.png; path = OpenGLSample/Resources/puppy.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +127,7 @@
 		854D5C0F1B31287A006BF4B1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				854D5C141B313F75006BF4B1 /* puppy.png */,
 				854D5C101B31288A006BF4B1 /* kitten.png */,
 			);
 			name = Resources;
