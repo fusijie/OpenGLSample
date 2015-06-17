@@ -10,6 +10,9 @@
 #include <iostream>
 #include "glfw3.h"
 #include "SOIL.h"
+#include "GLM/glm.hpp"
+#include "GLM/gtc/matrix_transform.hpp"
+#include "GLM/gtc/type_ptr.hpp"
 
 void error_callback(int error, const char* description)
 {
@@ -51,28 +54,29 @@ void checkProgram(GLint program)
 
 //Shader source
 const GLchar* vertexSource =
-"#version 150 core\n"
-"in vec3 position;"
-"in vec3 color;"
-"in vec2 texcoord;"
-"out vec3 Color;"
-"out vec2 Texcoord;"
-"void main() {"
-"   Color = color;"
-"   Texcoord = texcoord;"
-"   gl_Position = vec4(position, 1.0);"
-"}";
+    "#version 150 core\n"
+    "in vec3 position;"
+    "in vec3 color;"
+    "in vec2 texcoord;"
+    "out vec3 Color;"
+    "out vec2 Texcoord;"
+    "uniform mat4 trans;"
+    "void main() {"
+    "   Color = color;"
+    "   Texcoord = texcoord;"
+    "   gl_Position = trans * vec4(position, 1.0);"
+    "}";
 
 const GLchar* fragmentSource =
-"#version 150 core\n"
-"in vec3 Color;"
-"in vec2 Texcoord;"
-"out vec4 finalColor;"
-"uniform sampler2D texKitten;"
-"uniform sampler2D texPuppy;"
-"void main() {"
-"   finalColor = mix(texture(texKitten, Texcoord), texture(texPuppy, Texcoord), 0.5);"
-"}";
+    "#version 150 core\n"
+    "in vec3 Color;"
+    "in vec2 Texcoord;"
+    "out vec4 finalColor;"
+    "uniform sampler2D texKitten;"
+    "uniform sampler2D texPuppy;"
+    "void main() {"
+    "   finalColor = mix(texture(texKitten, Texcoord), texture(texPuppy, Texcoord), 0.5);"
+    "}";
 
 int main(int argc, const char * argv[]) {
     // insert code here...
@@ -194,7 +198,11 @@ int main(int argc, const char * argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    
+    glm::mat4 trans;
+    trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    GLint uniTrans = glGetUniformLocation(shaderProgram, "trans");
+    glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
+
     while (!glfwWindowShouldClose(window)) {
         
         //Clear

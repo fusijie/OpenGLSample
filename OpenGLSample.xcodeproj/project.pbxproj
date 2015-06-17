@@ -47,6 +47,7 @@
 		854D5C0D1B312745006BF4B1 /* libSOIL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSOIL.a; path = OpenGLSample/SOIL/libSOIL.a; sourceTree = "<group>"; };
 		854D5C101B31288A006BF4B1 /* kitten.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kitten.png; path = OpenGLSample/Resources/kitten.png; sourceTree = "<group>"; };
 		854D5C141B313F75006BF4B1 /* puppy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = puppy.png; path = OpenGLSample/Resources/puppy.png; sourceTree = "<group>"; };
+		854D5D1C1B3141DB006BF4B1 /* GLM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GLM; path = OpenGLSample/GLM; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +70,7 @@
 		854D5BE81B311017006BF4B1 = {
 			isa = PBXGroup;
 			children = (
+				854D5D1C1B3141DB006BF4B1 /* GLM */,
 				854D5C0F1B31287A006BF4B1 /* Resources */,
 				854D5C051B311130006BF4B1 /* Framework */,
 				854D5C0B1B31272D006BF4B1 /* SOIL */,
@@ -316,6 +318,7 @@
 				854D5BFA1B311017006BF4B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
