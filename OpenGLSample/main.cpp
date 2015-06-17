@@ -9,6 +9,7 @@
 #define GLFW_INCLUDE_GLCOREARB
 #include <iostream>
 #include "glfw3.h"
+#define GLSL(src) "#version 150 core\n" #src
 
 void error_callback(int error, const char* description)
 {
@@ -49,19 +50,30 @@ void checkProgram(GLint program)
 
 
 //Shader source
-const GLchar* vertexSource =
-    "#version 150 core\n"
-    "in vec2 position;"
-    "void main() {"
-    "   gl_Position = vec4(position, 1.0, 1.0);"
-    "}";
+const GLchar* vertexSource = GLSL(
+    in vec2 position;
+    void main() {
+       gl_Position = vec4(position, 1.0, 1.0);
+    }
+);
 
-const GLchar* fragmentSource =
-    "#version 150 core\n"
-    "out vec4 finalColor;"
-    "void main() {"
-    "   finalColor = vec4(1.0, 1.0, 1.0, 1.0);"
-    "}";
+const GLchar* fragmentSource = GLSL(
+    out vec4 finalColor;
+    void main() {
+       finalColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+);
+
+const GLchar* geometrySource = GLSL(
+    layout(points) in;
+    layout(points, max_vertices = 1) out;
+    void main(){
+        gl_Position = gl_in[0].gl_Position;
+        EmitVertex();
+        EndPrimitive();
+    }
+                                    
+);
 
 int main(int argc, const char * argv[]) {
     // insert code here...
@@ -99,9 +111,10 @@ int main(int argc, const char * argv[]) {
     
     //Create a VBO, and copy vertices data to it.
     float vertices[]={
-        0.0f, 0.5f,
-        0.5f,-0.5f,
-        -0.5f,-0.5f,
+        -0.45f,  0.45f,
+         0.45f,  0.45f,
+         0.45f, -0.45f,
+        -0.45f, -0.45f,
     };
     
     GLuint vbo;
@@ -120,10 +133,16 @@ int main(int argc, const char * argv[]) {
     glCompileShader(fragmentShader);
     checkShader(fragmentShader);
     
+    GLint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+    glShaderSource(geometryShader, 1, &geometrySource, nullptr);
+    glCompileShader(geometryShader);
+    checkShader(geometryShader);
+    
     //Program operation
     GLint shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+    glAttachShader(shaderProgram, geometryShader);
     glLinkProgram(shaderProgram);
     checkProgram(shaderProgram);
     glUseProgram(shaderProgram);
@@ -141,7 +160,7 @@ int main(int argc, const char * argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         
         //Draw
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_POINTS, 0, 4);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
