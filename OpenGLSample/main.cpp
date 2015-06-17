@@ -52,19 +52,16 @@ void checkProgram(GLint program)
 const GLchar* vertexSource =
 "#version 150 core\n"
 "in vec3 position;"
-"in vec3 color;"
-"out vec3 Color;"
 "void main() {"
-"   Color = color;"
 "   gl_Position = vec4(position, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
 "#version 150 core\n"
-"in vec3 Color;"
 "out vec4 finalColor;"
+"uniform vec3 color;"
 "void main() {"
-"   finalColor = vec4(Color, 1.0);"
+"   finalColor = vec4(color, 1.0);"
 "}";
 
 int main(int argc, const char * argv[]) {
@@ -103,9 +100,9 @@ int main(int argc, const char * argv[]) {
     
     //Create a VBO, and copy vertices data to it.
     float vertices[]={
-        0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.5f,-0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f,-0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+        0.0f, 0.5f, 0.0f,
+        0.5f,-0.5f, 0.0f,
+        -0.5f,-0.5f, 0.0f
     };
     
     GLuint vbo;
@@ -134,11 +131,11 @@ int main(int argc, const char * argv[]) {
     
     //Bind VBO to shader attribute.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
     glEnableVertexAttribArray(posAttrib);
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT),(void*)(3*sizeof(GL_FLOAT)));
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    GLint colUnif = glGetUniformLocation(shaderProgram, "color");
+    glUniform3f(colUnif, 1.0f, 0.0f, 0.0f);
     
     while (!glfwWindowShouldClose(window)) {
         
