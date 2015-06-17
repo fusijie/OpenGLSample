@@ -166,7 +166,9 @@ const GLchar* screenFragmentSource =
     "out vec4 finalColor;"
     "uniform sampler2D texFramebuffer;"
     "void main(){"
-    "   finalColor = vec4(1.0, 1.0, 1.0, 1.0) - texture(texFramebuffer, Texcoord);"
+    "   finalColor = texture(texFramebuffer, Texcoord);"
+    "   float avg = 0.2126 * finalColor.r + 0.7125 * finalColor.g + 0.0722 * finalColor.b;"
+    "   finalColor = vec4(avg, avg, avg, 1.0);"
     "}";
 
 GLfloat cubeVertices[] = {
