@@ -53,19 +53,23 @@ const GLchar* vertexSource =
 "#version 150 core\n"
 "in vec3 position;"
 "in vec3 color;"
+"in vec2 texcoord;"
 "out vec3 Color;"
+"out vec2 Texcoord;"
 "void main() {"
 "   Color = color;"
+"   Texcoord = texcoord;"
 "   gl_Position = vec4(position, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
 "#version 150 core\n"
 "in vec3 Color;"
+"in vec2 Texcoord;"
 "out vec4 finalColor;"
-"uniform vec3 color;"
+"uniform sampler2D tex;"
 "void main() {"
-"   finalColor = vec4(Color, 1.0);"
+"   finalColor = texture(tex, Texcoord) * vec4(Color, 1.0);"
 "}";
 
 int main(int argc, const char * argv[]) {
@@ -105,10 +109,10 @@ int main(int argc, const char * argv[]) {
     
     //Create a VBO, and copy vertices data to it.
     float vertices[]={
-        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Top-left
-        0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Top-right
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Bottom-right
-        -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, // Bottom-left
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f
     };
     
     GLuint element[] = {
@@ -125,6 +129,21 @@ int main(int argc, const char * argv[]) {
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(element), element, GL_STATIC_DRAW);
+    
+    //Create a texture buffer.
+    float pixels[]={
+        0.0f,0.0f,0.0f, 1.0f,1.0f,1.0f,
+        1.0f,1.0f,1.0f, 0.0f,0.0f,0.0f
+    };
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_FLOAT, pixels);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     //Shade operation
     GLint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -148,11 +167,13 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), 0);
     GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
     glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
-
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
+    GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
+    glEnableVertexAttribArray(texAttrib);
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(6*sizeof(GL_FLOAT)));
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -171,6 +192,8 @@ int main(int argc, const char * argv[]) {
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
     glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
+    glDeleteTextures(1, &tex);
     glDeleteVertexArrays(1, &vao);
     
     glfwDestroyWindow(window);
