@@ -61,11 +61,13 @@ const GLchar* vertexSource =
     "in vec2 texcoord;"
     "out vec3 Color;"
     "out vec2 Texcoord;"
-    "uniform mat4 trans;"
+    "uniform mat4 model;"
+    "uniform mat4 view;"
+    "uniform mat4 project;"
     "void main() {"
     "   Color = color;"
     "   Texcoord = texcoord;"
-    "   gl_Position = trans * vec4(position, 1.0);"
+    "   gl_Position = project* view * model * vec4(position, 1.0);"
     "}";
 
 const GLchar* fragmentSource =
@@ -199,6 +201,20 @@ int main(int argc, const char * argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+    //View
+    glm::mat4 view;
+    view = glm::lookAt(glm::vec3(1.2f,1.2f,1.2f),
+                       glm::vec3(0.0f,0.0f,0.0f),
+                       glm::vec3(0.0f,0.0f,1.0f));
+    GLint uniView = glGetUniformLocation(shaderProgram, "view");
+    glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+    
+    //Project
+    glm::mat4 project;
+    project = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 1.0f, 10.0f);
+    GLint uniProject = glGetUniformLocation(shaderProgram, "project");
+    glUniformMatrix4fv(uniProject, 1, GL_FALSE, glm::value_ptr(project));
+    
     auto t_start = std::chrono::high_resolution_clock::now();
 
     while (!glfwWindowShouldClose(window)) {
@@ -207,14 +223,14 @@ int main(int argc, const char * argv[]) {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        //Calulate
+        //Model
         auto t_now = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now-t_start).count();
         
-        glm::mat4 trans;
-        trans = glm::rotate(trans, time * glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        GLint uniTrans = glGetUniformLocation(shaderProgram, "trans");
-        glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
+        glm::mat4 model;
+        model = glm::rotate(model, time * glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        GLint uniModel = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         
         //Draw
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
