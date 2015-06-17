@@ -71,8 +71,6 @@ const GLchar* fragmentSource =
 int main(int argc, const char * argv[]) {
     // insert code here...
     
-    auto t_start = std::chrono::high_resolution_clock::now();
-
     GLFWwindow* window;
     
     glfwSetErrorCallback(error_callback);
