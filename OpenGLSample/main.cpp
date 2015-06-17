@@ -52,35 +52,35 @@ void checkProgram(GLint program)
 //Shader source
 const GLchar* vertexSource = GLSL(
     in vec2 position;
+    in vec3 color;
+    out vec3 Color;
     void main() {
-       gl_Position = vec4(position, 1.0, 1.0);
+        Color = color;
+        gl_Position = vec4(position, 1.0, 1.0);
     }
 );
 
 const GLchar* fragmentSource = GLSL(
+    in vec3 fColor;
     out vec4 finalColor;
     void main() {
-       finalColor = vec4(1.0, 0.0, 0.0, 1.0);
+        finalColor = vec4(fColor, 1.0);
     }
 );
 
 const GLchar* geometrySource = GLSL(
     layout(points) in;
-    layout(triangle_strip, max_vertices = 5) out;
+    layout(line_strip, max_vertices = 2) out;
+    in vec3 Color[];
+    out vec3 fColor;
     void main(){
-        gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.1, 0.0, 0.0);
+        fColor = Color[0];
+        gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.0, 0.0, 0.0);
         EmitVertex();
-        gl_Position = gl_in[0].gl_Position + vec4(0.1, 0.1, 0.0, 0.0);
-        EmitVertex();
-        gl_Position = gl_in[0].gl_Position + vec4(0.1, -0.1, 0.0, 0.0);
-        EmitVertex();
-        gl_Position = gl_in[0].gl_Position + vec4(-0.1, -0.1, 0.0, 0.0);
-        EmitVertex();
-        gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.1, 0.0, 0.0);
+        gl_Position = gl_in[0].gl_Position + vec4(0.1, 0.0, 0.0, 0.0);
         EmitVertex();
         EndPrimitive();
     }
-                                    
 );
 
 int main(int argc, const char * argv[]) {
@@ -118,11 +118,11 @@ int main(int argc, const char * argv[]) {
     glBindVertexArray(vao);
     
     //Create a VBO, and copy vertices data to it.
-    float vertices[]={
-        -0.45f,  0.45f,
-         0.45f,  0.45f,
-         0.45f, -0.45f,
-        -0.45f, -0.45f,
+    float vertices[] = {
+        -0.45f,  0.45f, 1.0f, 0.0f, 0.0f, // Red point
+         0.45f,  0.45f, 0.0f, 1.0f, 0.0f, // Green point
+         0.45f, -0.45f, 0.0f, 0.0f, 1.0f, // Blue point
+        -0.45f, -0.45f, 1.0f, 1.0f, 0.0f, // Yellow point
     };
     
     GLuint vbo;
@@ -158,7 +158,11 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
+    
+    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
+    glEnableVertexAttribArray(colAttrib);
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(2*sizeof(float)));
     
     
     while (!glfwWindowShouldClose(window)) {
