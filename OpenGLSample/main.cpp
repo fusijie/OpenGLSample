@@ -51,9 +51,9 @@ void checkProgram(GLint program)
 //Shader source
 const GLchar* vertexSource =
 "#version 150 core\n"
-"in vec2 position;"
+"in vec3 position;"
 "void main() {"
-"   gl_Position = vec4(position, 1.0, 1.0);"
+"   gl_Position = vec4(position, 1.0);"
 "}";
 
 const GLchar* fragmentSource =
@@ -99,9 +99,9 @@ int main(int argc, const char * argv[]) {
     
     //Create a VBO, and copy vertices data to it.
     float vertices[]={
-        0.0f, 0.5f,
-        0.5f,-0.5f,
-        -0.5f,-0.5f,
+        0.0f, 0.5f, 0.0f,
+        0.5f,-0.5f, 0.0f,
+        -0.5f,-0.5f, 0.0f
     };
     
     GLuint vbo;
@@ -131,8 +131,7 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
     
     while (!glfwWindowShouldClose(window)) {
         
