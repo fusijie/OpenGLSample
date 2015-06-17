@@ -15,6 +15,8 @@
 #include "GLM/gtc/type_ptr.hpp"
 #include <cmath>
 
+static bool isAnimate = true;
+
 void error_callback(int error, const char* description)
 {
     fputs(description, stderr);
@@ -24,6 +26,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+    else if(key ==GLFW_KEY_SPACE && action ==GLFW_PRESS)
+        isAnimate = !isAnimate;
 }
 
 void checkShader(GLint shader)
@@ -203,9 +207,7 @@ int main(int argc, const char * argv[]) {
 
     //View
     glm::mat4 view;
-    view = glm::lookAt(glm::vec3(1.2f,1.2f,1.2f),
-                       glm::vec3(0.0f,0.0f,0.0f),
-                       glm::vec3(0.0f,0.0f,1.0f));
+    view = glm::lookAt(glm::vec3(0.0f,0.0f,2.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f));
     GLint uniView = glGetUniformLocation(shaderProgram, "view");
     glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
     
@@ -215,7 +217,8 @@ int main(int argc, const char * argv[]) {
     GLint uniProject = glGetUniformLocation(shaderProgram, "project");
     glUniformMatrix4fv(uniProject, 1, GL_FALSE, glm::value_ptr(project));
     
-    auto t_start = std::chrono::high_resolution_clock::now();
+    GLfloat angle = 0.0f;
+    GLfloat speed = 1.0f;
 
     while (!glfwWindowShouldClose(window)) {
         
@@ -224,13 +227,13 @@ int main(int argc, const char * argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         
         //Model
-        auto t_now = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now-t_start).count();
-        
         glm::mat4 model;
-        model = glm::rotate(model, time * glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        GLfloat s = sin(time * 5.0f)*0.25f+0.75f;
-        model = glm::scale(model, glm::vec3(s,s,s));
+        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f,0.0f,0.0f));
+        if(isAnimate)
+        {
+            angle += speed;
+        }
+
         GLint uniModel = glGetUniformLocation(shaderProgram, "model");
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         
