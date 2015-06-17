@@ -51,28 +51,30 @@ void checkProgram(GLint program)
 
 //Shader source
 const GLchar* vertexSource =
-"#version 150 core\n"
-"in vec3 position;"
-"in vec3 color;"
-"in vec2 texcoord;"
-"out vec3 Color;"
-"out vec2 Texcoord;"
-"void main() {"
-"   Color = color;"
-"   Texcoord = texcoord;"
-"   gl_Position = vec4(position, 1.0);"
-"}";
+    "#version 150 core\n"
+    "in vec3 position;"
+    "in vec3 color;"
+    "in vec2 texcoord;"
+    "out vec3 Color;"
+    "out vec2 Texcoord;"
+    "void main() {"
+    "   Color = color;"
+    "   Texcoord = texcoord;"
+    "   gl_Position = vec4(position, 1.0);"
+    "}";
 
 const GLchar* fragmentSource =
-"#version 150 core\n"
-"in vec3 Color;"
-"in vec2 Texcoord;"
-"out vec4 finalColor;"
-"uniform sampler2D texKitten;"
-"uniform sampler2D texPuppy;"
-"void main() {"
-"   finalColor = mix(texture(texKitten, Texcoord), texture(texPuppy, Texcoord), 0.5);"
-"}";
+    "#version 150 core\n"
+    "in vec3 Color;"
+    "in vec2 Texcoord;"
+    "out vec4 finalColor;"
+    "uniform sampler2D texKitten;"
+    "uniform sampler2D texPuppy;"
+    "uniform float time;"
+    "void main() {"
+    "   float factor = (sin(time * 3.0) + 1.0) / 2.0;"
+    "   finalColor = mix(texture(texKitten, Texcoord), texture(texPuppy, Texcoord), factor);"
+    "}";
 
 int main(int argc, const char * argv[]) {
     // insert code here...
@@ -194,13 +196,19 @@ int main(int argc, const char * argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    
+    auto t_start = std::chrono::high_resolution_clock::now();
+
     while (!glfwWindowShouldClose(window)) {
         
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         
+        //Calculate
+        auto t_now = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now-t_start).count();
+        glUniform1f(glGetUniformLocation(shaderProgram, "time"), time);
+
         //Draw
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         
