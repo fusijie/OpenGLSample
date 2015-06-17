@@ -165,10 +165,15 @@ const GLchar* screenFragmentSource =
     "in vec2 Texcoord;"
     "out vec4 finalColor;"
     "uniform sampler2D texFramebuffer;"
+    "const float blurSizeH = 1.0/300.0;"
+    "const float blurSizeV = 1.0/200.0;"
+    "const int samplecount = 4;"
     "void main(){"
-    "   finalColor = texture(texFramebuffer, Texcoord);"
-    "   float avg = 0.2126 * finalColor.r + 0.7125 * finalColor.g + 0.0722 * finalColor.b;"
-    "   finalColor = vec4(avg, avg, avg, 1.0);"
+    "   vec4 sum = vec4(0.0);"
+    "   for(int x=-samplecount;x<=samplecount;x++)"
+    "       for(int y=-samplecount;y<=samplecount;y++)"
+    "           sum += texture(texFramebuffer, vec2(Texcoord.x + x*blurSizeH, Texcoord.y + y*blurSizeV))/float((2*samplecount+1) * (2*samplecount+1));"
+    "   finalColor = sum;"
     "}";
 
 GLfloat cubeVertices[] = {
