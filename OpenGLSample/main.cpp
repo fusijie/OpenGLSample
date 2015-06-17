@@ -50,18 +50,18 @@ void checkProgram(GLint program)
 
 //Shader source
 const GLchar* vertexSource =
-"#version 150 core\n"
-"in vec2 position;"
-"void main() {"
-"   gl_Position = vec4(position, 1.0, 1.0);"
-"}";
+    "#version 150 core\n"
+    "in vec2 position;"
+    "void main() {"
+    "   gl_Position = vec4(position, 1.0, 1.0);"
+    "}";
 
 const GLchar* fragmentSource =
-"#version 150 core\n"
-"out vec4 finalColor;"
-"void main() {"
-"   finalColor = vec4(1.0, 1.0, 1.0, 1.0);"
-"}";
+    "#version 150 core\n"
+    "out vec4 finalColor;"
+    "void main() {"
+    "   finalColor = vec4(1.0, 1.0, 1.0, 1.0);"
+    "}";
 
 int main(int argc, const char * argv[]) {
     // insert code here...
