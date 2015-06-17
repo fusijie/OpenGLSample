@@ -229,6 +229,8 @@ int main(int argc, const char * argv[]) {
         
         glm::mat4 model;
         model = glm::rotate(model, time * glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        GLfloat s = sin(time * 5.0f)*0.25f+0.75f;
+        model = glm::scale(model, glm::vec3(s,s,s));
         GLint uniModel = glGetUniformLocation(shaderProgram, "model");
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         
