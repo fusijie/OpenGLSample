@@ -13,18 +13,21 @@
 		854D5C001B3110E6006BF4B1 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5BFF1B3110E6006BF4B1 /* CoreVideo.framework */; };
 		854D5C021B3110ED006BF4B1 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C011B3110ED006BF4B1 /* IOKit.framework */; };
 		854D5C041B31112A006BF4B1 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C031B31112A006BF4B1 /* libglfw3.a */; };
+		854D5C0E1B312745006BF4B1 /* libSOIL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C0D1B312745006BF4B1 /* libSOIL.a */; };
+		854D5C111B31288F006BF4B1 /* kitten.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 854D5C101B31288A006BF4B1 /* kitten.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		854D5BEF1B311017006BF4B1 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				854D5C111B31288F006BF4B1 /* kitten.png in Copy Files */,
 			);
 			name = "Copy Files";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -38,6 +41,9 @@
 		854D5C031B31112A006BF4B1 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = OpenGLSample/GLFW3/libglfw3.a; sourceTree = "<group>"; };
 		854D5C071B311158006BF4B1 /* glfw3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfw3.h; path = OpenGLSample/GLFW3/glfw3.h; sourceTree = "<group>"; };
 		854D5C081B311158006BF4B1 /* glfw3native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfw3native.h; path = OpenGLSample/GLFW3/glfw3native.h; sourceTree = "<group>"; };
+		854D5C0C1B312738006BF4B1 /* SOIL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SOIL.h; path = OpenGLSample/SOIL/SOIL.h; sourceTree = "<group>"; };
+		854D5C0D1B312745006BF4B1 /* libSOIL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSOIL.a; path = OpenGLSample/SOIL/libSOIL.a; sourceTree = "<group>"; };
+		854D5C101B31288A006BF4B1 /* kitten.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kitten.png; path = OpenGLSample/Resources/kitten.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				854D5C0E1B312745006BF4B1 /* libSOIL.a in Frameworks */,
 				854D5C041B31112A006BF4B1 /* libglfw3.a in Frameworks */,
 				854D5C021B3110ED006BF4B1 /* IOKit.framework in Frameworks */,
 				854D5C001B3110E6006BF4B1 /* CoreVideo.framework in Frameworks */,
@@ -59,7 +66,9 @@
 		854D5BE81B311017006BF4B1 = {
 			isa = PBXGroup;
 			children = (
+				854D5C0F1B31287A006BF4B1 /* Resources */,
 				854D5C051B311130006BF4B1 /* Framework */,
+				854D5C0B1B31272D006BF4B1 /* SOIL */,
 				854D5C061B31114B006BF4B1 /* GLFW */,
 				854D5BF31B311017006BF4B1 /* OpenGLSample */,
 				854D5BF21B311017006BF4B1 /* Products */,
@@ -85,6 +94,7 @@
 		854D5C051B311130006BF4B1 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				854D5C0D1B312745006BF4B1 /* libSOIL.a */,
 				854D5C031B31112A006BF4B1 /* libglfw3.a */,
 				854D5C011B3110ED006BF4B1 /* IOKit.framework */,
 				854D5BFF1B3110E6006BF4B1 /* CoreVideo.framework */,
@@ -101,6 +111,22 @@
 				854D5C081B311158006BF4B1 /* glfw3native.h */,
 			);
 			name = GLFW;
+			sourceTree = "<group>";
+		};
+		854D5C0B1B31272D006BF4B1 /* SOIL */ = {
+			isa = PBXGroup;
+			children = (
+				854D5C0C1B312738006BF4B1 /* SOIL.h */,
+			);
+			name = SOIL;
+			sourceTree = "<group>";
+		};
+		854D5C0F1B31287A006BF4B1 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				854D5C101B31288A006BF4B1 /* kitten.png */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -249,6 +275,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/OpenGLSample/GLFW3",
+					"$(PROJECT_DIR)/OpenGLSample/SOIL",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -260,6 +287,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/OpenGLSample/GLFW3",
+					"$(PROJECT_DIR)/OpenGLSample/SOIL",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
