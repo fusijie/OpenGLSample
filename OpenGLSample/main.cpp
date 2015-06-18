@@ -53,9 +53,12 @@ void checkProgram(GLint program)
 const GLchar* vertexSource = GLSL(
     in vec2 position;
     in vec3 color;
+    in float sides;
     out vec3 Color;
+    out float Sides;
     void main() {
         Color = color;
+        Sides = sides;
         gl_Position = vec4(position, 1.0, 1.0);
     }
 );
@@ -70,15 +73,21 @@ const GLchar* fragmentSource = GLSL(
 
 const GLchar* geometrySource = GLSL(
     layout(points) in;
-    layout(line_strip, max_vertices = 2) out;
+    layout(line_strip, max_vertices = 64) out;
     in vec3 Color[];
+    in float Sides[];
     out vec3 fColor;
+    const float PI = 3.1415926;
     void main(){
         fColor = Color[0];
-        gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.0, 0.0, 0.0);
-        EmitVertex();
-        gl_Position = gl_in[0].gl_Position + vec4(0.1, 0.0, 0.0, 0.0);
-        EmitVertex();
+        for(int i=0; i<=Sides[0]; i++){
+            float ang = PI * 2.0 / Sides[0] * i;
+            //0.3/0.4 is the aspect ration.
+            //-sin(ang) is for the anticlockwise.
+            vec4 offset = vec4(cos(ang)*0.3, -sin(ang)*0.4, 0.0, 0.0);
+            gl_Position = gl_in[0].gl_Position + offset;
+            EmitVertex();
+        }
         EndPrimitive();
     }
 );
@@ -119,10 +128,10 @@ int main(int argc, const char * argv[]) {
     
     //Create a VBO, and copy vertices data to it.
     float vertices[] = {
-        -0.45f,  0.45f, 1.0f, 0.0f, 0.0f, // Red point
-         0.45f,  0.45f, 0.0f, 1.0f, 0.0f, // Green point
-         0.45f, -0.45f, 0.0f, 0.0f, 1.0f, // Blue point
-        -0.45f, -0.45f, 1.0f, 1.0f, 0.0f, // Yellow point
+        -0.45f,  0.45f, 1.0f, 0.0f, 0.0f, 4.0f,
+         0.45f,  0.45f, 0.0f, 1.0f, 0.0f, 8.0f,
+         0.45f, -0.45f, 0.0f, 0.0f, 1.0f, 16.0f,
+        -0.45f, -0.45f, 1.0f, 1.0f, 0.0f, 32.0f
     };
     
     GLuint vbo;
@@ -158,12 +167,15 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
     
     GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
     glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(2*sizeof(float)));
+    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(2*sizeof(float)));
     
+    GLint sidesAttrib = glGetAttribLocation(shaderProgram, "sides");
+    glEnableVertexAttribArray(sidesAttrib);
+    glVertexAttribPointer(sidesAttrib, 1, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(5*sizeof(float)));
     
     while (!glfwWindowShouldClose(window)) {
         
