@@ -48,47 +48,12 @@ void checkProgram(GLint program)
     }
 }
 
-
 //Shader source
 const GLchar* vertexSource = GLSL(
-    in vec2 position;
-    in vec3 color;
-    in float sides;
-    out vec3 Color;
-    out float Sides;
+    in float inValue;
+    out float outValue;
     void main() {
-        Color = color;
-        Sides = sides;
-        gl_Position = vec4(position, 1.0, 1.0);
-    }
-);
-
-const GLchar* fragmentSource = GLSL(
-    in vec3 fColor;
-    out vec4 finalColor;
-    void main() {
-        finalColor = vec4(fColor, 1.0);
-    }
-);
-
-const GLchar* geometrySource = GLSL(
-    layout(points) in;
-    layout(line_strip, max_vertices = 64) out;
-    in vec3 Color[];
-    in float Sides[];
-    out vec3 fColor;
-    const float PI = 3.1415926;
-    void main(){
-        fColor = Color[0];
-        for(int i=0; i<=Sides[0]; i++){
-            float ang = PI * 2.0 / Sides[0] * i;
-            //0.3/0.4 is the aspect ration.
-            //-sin(ang) is for the anticlockwise.
-            vec4 offset = vec4(cos(ang)*0.3, -sin(ang)*0.4, 0.0, 0.0);
-            gl_Position = gl_in[0].gl_Position + offset;
-            EmitVertex();
-        }
-        EndPrimitive();
+        outValue = sqrt(inValue);
     }
 );
 
@@ -127,17 +92,12 @@ int main(int argc, const char * argv[]) {
     glBindVertexArray(vao);
     
     //Create a VBO, and copy vertices data to it.
-    float vertices[] = {
-        -0.45f,  0.45f, 1.0f, 0.0f, 0.0f, 4.0f,
-         0.45f,  0.45f, 0.0f, 1.0f, 0.0f, 8.0f,
-         0.45f, -0.45f, 0.0f, 0.0f, 1.0f, 16.0f,
-        -0.45f, -0.45f, 1.0f, 1.0f, 0.0f, 32.0f
-    };
+    float data[] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
     
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
     
     //Shade operation
     GLint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -145,54 +105,47 @@ int main(int argc, const char * argv[]) {
     glCompileShader(vertexShader);
     checkShader(vertexShader);
     
-    GLint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
-    glCompileShader(fragmentShader);
-    checkShader(fragmentShader);
-    
-    GLint geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
-    glShaderSource(geometryShader, 1, &geometrySource, nullptr);
-    glCompileShader(geometryShader);
-    checkShader(geometryShader);
-    
     //Program operation
     GLint shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glAttachShader(shaderProgram, geometryShader);
+    
+    const GLchar* feedbackVaryings[]={"outValue"};
+    glTransformFeedbackVaryings(shaderProgram, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+    
     glLinkProgram(shaderProgram);
     checkProgram(shaderProgram);
     glUseProgram(shaderProgram);
     
     //Bind VBO to shader attribute.
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 6*sizeof(float), 0);
+    GLint inputAttrib = glGetAttribLocation(shaderProgram, "inValue");
+    glEnableVertexAttribArray(inputAttrib);
+    glVertexAttribPointer(inputAttrib, 1, GL_FLOAT, GL_FALSE, 0, 0);
     
-    GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(2*sizeof(float)));
+    //Create transform feedback buffer.
+    GLuint tbo;
+    glGenBuffers(1, &tbo);
+    glBindBuffer(GL_ARRAY_BUFFER, tbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), nullptr, GL_STATIC_READ);
+   
+    //Perform feedback transform.
+    glEnable(GL_RASTERIZER_DISCARD);
     
-    GLint sidesAttrib = glGetAttribLocation(shaderProgram, "sides");
-    glEnableVertexAttribArray(sidesAttrib);
-    glVertexAttribPointer(sidesAttrib, 1, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(5*sizeof(float)));
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
     
-    while (!glfwWindowShouldClose(window)) {
-        
-        //Clear
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        //Draw
-        glDrawArrays(GL_POINTS, 0, 4);
-        
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+    glBeginTransformFeedback(GL_POINTS);
+    glDrawArrays(GL_POINTS, 0, 5);
+    glEndTransformFeedback();
+    
+    glDisable(GL_RASTERIZER_DISCARD);
+    
+    glFlush();
+    
+    //Fetch and print result.
+    GLfloat feedback[5];
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
+    printf("%f %f %f %f %f\n", feedback[0], feedback[1], feedback[2], feedback[3], feedback[4]);
     
     glDeleteProgram(shaderProgram);
-    glDeleteShader(geometryShader);
-    glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
