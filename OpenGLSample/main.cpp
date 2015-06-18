@@ -179,6 +179,7 @@ int main(int argc, const char * argv[]) {
     }
     
     glDeleteProgram(shaderProgram);
+    glDeleteShader(geometryShader);
     glDeleteShader(fragmentShader);
     glDeleteShader(vertexShader);
     glDeleteBuffers(1, &vbo);
