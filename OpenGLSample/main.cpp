@@ -151,15 +151,25 @@ int main(int argc, const char * argv[]) {
     
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, tbo);
     
+    GLuint query;
+    glGenQueries(1, &query);
+    glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, query);
+    
     glBeginTransformFeedback(GL_TRIANGLES);
     glDrawArrays(GL_POINTS, 0, 5);
     glEndTransformFeedback();
+    
+    glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
     
     glDisable(GL_RASTERIZER_DISCARD);
     
     glFlush();
     
     //Fetch and print result.
+    GLuint primitives;
+    glGetQueryObjectuiv(query, GL_QUERY_RESULT, &primitives);
+    printf("%u primitives written!\n\n", primitives);
+    
     GLfloat feedback[15];
     glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(feedback), feedback);
     for (int i = 0; i < 15; i++) {
