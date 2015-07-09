@@ -223,11 +223,14 @@ int main(int argc, const char * argv[]) {
     //lamp position
     glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
     
+    //GLState
+    glEnable(GL_DEPTH_TEST);
+    
     while (!glfwWindowShouldClose(window)) {
         
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //Draw Object cube.
         ///Use program, bind vao.
