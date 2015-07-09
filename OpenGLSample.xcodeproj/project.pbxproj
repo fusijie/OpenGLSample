@@ -34,6 +34,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		850CBE3E1B4ED45900AE66EB /* Camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Camera.hpp; sourceTree = "<group>"; };
 		854D5BF11B311017006BF4B1 /* OpenGLSample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGLSample; sourceTree = BUILT_PRODUCTS_DIR; };
 		854D5BF41B311017006BF4B1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		854D5BFB1B3110D8006BF4B1 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -92,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				854D5BF41B311017006BF4B1 /* main.cpp */,
+				850CBE3E1B4ED45900AE66EB /* Camera.hpp */,
 			);
 			path = OpenGLSample;
 			sourceTree = "<group>";
