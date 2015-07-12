@@ -134,7 +134,7 @@ const GLchar* fragmentSource_object =
     "#version 150 core\n"
     "struct Material{"
     "   sampler2D diffuse;"
-    "   vec3 specular;"
+    "   sampler2D specular;"
     "   float shininess;"
     "};"
     "struct Light{"
@@ -159,7 +159,7 @@ const GLchar* fragmentSource_object =
     "   vec3 viewDir = normalize(viewPos - FragPos);"
     "   vec3 reflectDir = reflect(-lightDir, normalDir);"
     "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-    "   vec3 specular = light.specular * (spec * material.specular);"
+    "   vec3 specular = light.specular * (spec * vec3(texture(material.specular, TexCoords)));"
     "   finalColor = vec4(ambient + diffuse + specular, 1.0);"
     "}";
 
@@ -338,6 +338,23 @@ int main(int argc, const char * argv[]) {
     glUseProgram(shaderProgram[0]);
     glUniform1i(glGetUniformLocation(shaderProgram[0], "material.diffuse"), 0);
     
+    GLuint specularMap;
+    glGenTextures(1, &specularMap);
+    image = SOIL_load_image("container_specular.png", &width, &height, 0, SOIL_LOAD_RGB);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specularMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(image);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glUseProgram(shaderProgram[0]);
+    glUniform1i(glGetUniformLocation(shaderProgram[0], "material.specular"), 1);
+    
     //lamp position
     glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
     
@@ -390,7 +407,8 @@ int main(int argc, const char * argv[]) {
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
-        
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMap);
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
@@ -414,7 +432,8 @@ int main(int argc, const char * argv[]) {
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
-        //Reset vao.
+        //Reset.
+        glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
         
         glfwSwapBuffers(window);
