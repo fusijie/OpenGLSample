@@ -414,7 +414,8 @@ int main(int argc, const char * argv[]) {
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
-        //Reset vao.
+        //Reset.
+        glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
         
         glfwSwapBuffers(window);
