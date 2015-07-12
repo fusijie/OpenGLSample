@@ -116,13 +116,16 @@ const GLchar* vertexSource =
     "in vec3 normal;"
     "out vec3 Normal;"
     "out vec3 FragPos;"
+    "out vec3 LampColor;"
     "uniform mat4 model;"
     "uniform mat4 view;"
     "uniform mat4 projection;"
+    "uniform vec3 lampColor;"
     "void main() {"
     "   gl_Position = projection * view * model * vec4(position, 1.0);"
     "   FragPos = vec3(model * vec4 (position, 1.0));"
     "   Normal = mat3(transpose(inverse(model))) * normal;"
+    "   LampColor = lampColor;"
     "}";
 
 const GLchar* fragmentSource_object =
@@ -160,9 +163,10 @@ const GLchar* fragmentSource_object =
 
 const GLchar* fragmentSource_lamp =
     "#version 150 core\n"
+    "in vec3 LampColor;"
     "out vec4 finalColor;"
     "void main() {"
-    "   finalColor = vec4(1.0);"
+    "   finalColor = vec4(LampColor, 1.0);"
 "}";
 
 int main(int argc, const char * argv[]) {
@@ -353,8 +357,15 @@ int main(int argc, const char * argv[]) {
         GLint uniViewPos = glGetUniformLocation(shaderProgram[0], "viewPos");
         glUniform3f(uniViewPos, camera.Position.x, camera.Position.y, camera.Position.z);
         
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.ambient"), 0.2f, 0.2f, 0.2f);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.diffuse"), 0.5f, 0.5f, 0.5f);
+        glm::vec3 lightColor;
+        lightColor.r = sin(glfwGetTime() * 2.0f);
+        lightColor.g = sin(glfwGetTime() * 0.7f);
+        lightColor.b = sin(glfwGetTime() * 1.3f);
+        glm::vec3 ambientColor = lightColor * glm::vec3(0.2f);
+        glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+        
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.ambient"), ambientColor.r, ambientColor.g, ambientColor.b);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.diffuse"), diffuseColor.r, diffuseColor.g, diffuseColor.b);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.specular"), 1.0f, 1.0f, 1.0f);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.position"), lampPos.x, lampPos.y, lampPos.z);
         
@@ -382,6 +393,9 @@ int main(int argc, const char * argv[]) {
         
         uniProjection = glGetUniformLocation(shaderProgram[1], "projection");
         glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
+        
+        GLint uniLampColor = glGetUniformLocation(shaderProgram[1], "lampColor");
+        glUniform3f(uniLampColor, lightColor.r, lightColor.g, lightColor.b);
         
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
