@@ -310,10 +310,14 @@ int main(int argc, const char * argv[]) {
     
     while (!glfwWindowShouldClose(window)) {
         
-        // Calculate deltatime of current frame
+        //Calculate deltatime of current frame
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        
+        //Move lamp
+        lampPos.x = 1.0f + sin(currentFrame) * 2.0f;
+        lampPos.y = sin(currentFrame / 2.0f) * 1.0f;
         
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
