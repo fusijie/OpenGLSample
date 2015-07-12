@@ -133,6 +133,7 @@ const GLchar* fragmentSource_object =
     "uniform vec3 objectColor;"
     "uniform vec3 lightColor;"
     "uniform vec3 lampPos;"
+    "uniform vec3 viewPos;"
     "void main() {"
     "   float ambientStrength = 0.3f;"
     "   vec3 ambient = ambientStrength * lightColor;"
@@ -140,7 +141,12 @@ const GLchar* fragmentSource_object =
     "   vec3 lightDir = normalize(lampPos - FragPos);"
     "   float diff = max(dot(normalDir, lightDir), 0.0);"
     "   vec3 diffuse = diff * lightColor;"
-    "   finalColor = vec4((ambient + diffuse) * objectColor, 1.0);"
+    "   float specularStrength = 1.0f;"
+    "   vec3 viewDir = normalize(viewPos - FragPos);"
+    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
+    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);"
+    "   vec3 specular = specularStrength * spec * lightColor;"
+    "   finalColor = vec4((ambient + diffuse + specular) * objectColor, 1.0);"
     "}";
 
 const GLchar* fragmentSource_lamp =
@@ -339,6 +345,9 @@ int main(int argc, const char * argv[]) {
         
         GLint uniLampPos = glGetUniformLocation(shaderProgram[0], "lampPos");
         glUniform3f(uniLampPos, lampPos.x, lampPos.y, lampPos.z);
+        
+        GLint uniViewPos = glGetUniformLocation(shaderProgram[0], "viewPos");
+        glUniform3f(uniViewPos, camera.Position.x, camera.Position.y, camera.Position.z);
         
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
