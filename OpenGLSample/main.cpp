@@ -318,7 +318,7 @@ int main(int argc, const char * argv[]) {
         glUniform3f(uniObjectColor, 1.0f, 0.5f, 0.31f);
         
         GLint uniLightColor = glGetUniformLocation(shaderProgram[0], "lightColor");
-        glUniform3f(uniLightColor, 1.0f, 0.5f, 1.0f);
+        glUniform3f(uniLightColor, 1.0f, 1.0f, 1.0f);
         
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
