@@ -120,13 +120,15 @@ const GLchar* vertexSource =
     "   gl_Position = projection * view * model * vec4(position, 1.0);"
     "}";
 
-const GLchar* fragmentSource_light =
+const GLchar* fragmentSource_object =
     "#version 150 core\n"
     "out vec4 finalColor;"
     "uniform vec3 objectColor;"
     "uniform vec3 lightColor;"
     "void main() {"
-    "   finalColor = vec4(lightColor * objectColor, 1.0);"
+    "   float ambientStrength = 0.3f;"
+    "   vec3 ambient = ambientStrength * lightColor;"
+    "   finalColor = vec4(ambient * objectColor, 1.0);"
     "}";
 
 const GLchar* fragmentSource_lamp =
@@ -174,10 +176,10 @@ int main(int argc, const char * argv[]) {
     glCompileShader(vertexShader);
     checkShader(vertexShader);
     
-    GLint fragmentShader_light = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader_light, 1, &fragmentSource_light, nullptr);
-    glCompileShader(fragmentShader_light);
-    checkShader(fragmentShader_light);
+    GLint fragmentShader_object = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader_object, 1, &fragmentSource_object, nullptr);
+    glCompileShader(fragmentShader_object);
+    checkShader(fragmentShader_object);
     
     GLint fragmentShader_lamp = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader_lamp, 1, &fragmentSource_lamp, nullptr);
@@ -188,7 +190,7 @@ int main(int argc, const char * argv[]) {
     GLint shaderProgram[2];
     shaderProgram[0] = glCreateProgram();
     glAttachShader(shaderProgram[0], vertexShader);
-    glAttachShader(shaderProgram[0], fragmentShader_light);
+    glAttachShader(shaderProgram[0], fragmentShader_object);
     glLinkProgram(shaderProgram[0]);
     checkProgram(shaderProgram[0]);
     
@@ -353,7 +355,7 @@ int main(int argc, const char * argv[]) {
     
     glDeleteProgram(shaderProgram[0]);
     glDeleteProgram(shaderProgram[1]);
-    glDeleteShader(fragmentShader_light);
+    glDeleteShader(fragmentShader_object);
     glDeleteShader(fragmentShader_lamp);
     glDeleteShader(vertexShader);
     glDeleteBuffers(2, vbo);
