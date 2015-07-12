@@ -16,6 +16,7 @@
 		854D5C0E1B312745006BF4B1 /* libSOIL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C0D1B312745006BF4B1 /* libSOIL.a */; };
 		854D5C111B31288F006BF4B1 /* kitten.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 854D5C101B31288A006BF4B1 /* kitten.png */; };
 		854D5C151B313F7B006BF4B1 /* puppy.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 854D5C141B313F75006BF4B1 /* puppy.png */; };
+		85681C741B52C0D8002B7B8C /* container.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85681C731B52C0C8002B7B8C /* container.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				85681C741B52C0D8002B7B8C /* container.png in Copy Files */,
 				854D5C151B313F7B006BF4B1 /* puppy.png in Copy Files */,
 				854D5C111B31288F006BF4B1 /* kitten.png in Copy Files */,
 			);
@@ -49,6 +51,7 @@
 		854D5C101B31288A006BF4B1 /* kitten.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kitten.png; path = OpenGLSample/Resources/kitten.png; sourceTree = "<group>"; };
 		854D5C141B313F75006BF4B1 /* puppy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = puppy.png; path = OpenGLSample/Resources/puppy.png; sourceTree = "<group>"; };
 		854D5D1C1B3141DB006BF4B1 /* GLM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GLM; path = OpenGLSample/GLM; sourceTree = "<group>"; };
+		85681C731B52C0C8002B7B8C /* container.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container.png; path = OpenGLSample/Resources/container.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +134,7 @@
 		854D5C0F1B31287A006BF4B1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				85681C731B52C0C8002B7B8C /* container.png */,
 				854D5C141B313F75006BF4B1 /* puppy.png */,
 				854D5C101B31288A006BF4B1 /* kitten.png */,
 			);

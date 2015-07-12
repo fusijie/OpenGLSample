@@ -14,6 +14,8 @@
 #include "GLM/gtc/matrix_transform.hpp"
 #include "GLM/gtc/type_ptr.hpp"
 
+#include "SOIL.h"
+
 #include "Camera.hpp"
 
 //Global vars.
@@ -114,8 +116,10 @@ const GLchar* vertexSource =
     "#version 150 core\n"
     "in vec3 position;"
     "in vec3 normal;"
+    "in vec2 texCoords;"
     "out vec3 Normal;"
     "out vec3 FragPos;"
+    "out vec2 TexCoords;"
     "uniform mat4 model;"
     "uniform mat4 view;"
     "uniform mat4 projection;"
@@ -123,13 +127,13 @@ const GLchar* vertexSource =
     "   gl_Position = projection * view * model * vec4(position, 1.0);"
     "   FragPos = vec3(model * vec4 (position, 1.0));"
     "   Normal = mat3(transpose(inverse(model))) * normal;"
+    "   TexCoords = texCoords;"
     "}";
 
 const GLchar* fragmentSource_object =
     "#version 150 core\n"
     "struct Material{"
-    "   vec3 ambient;"
-    "   vec3 diffuse;"
+    "   sampler2D diffuse;"
     "   vec3 specular;"
     "   float shininess;"
     "};"
@@ -139,6 +143,7 @@ const GLchar* fragmentSource_object =
     "   vec3 diffuse;"
     "   vec3 specular;"
     "};"
+    "in vec2 TexCoords;"
     "in vec3 Normal;"
     "in vec3 FragPos;"
     "out vec4 finalColor;"
@@ -146,11 +151,11 @@ const GLchar* fragmentSource_object =
     "uniform Material material;"
     "uniform Light light;"
     "void main() {"
-    "   vec3 ambient = light.ambient * material.ambient;"
+    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
     "   vec3 normalDir = normalize(Normal);"
     "   vec3 lightDir = normalize(light.position - FragPos);"
     "   float diff = max(dot(normalDir, lightDir), 0.0);"
-    "   vec3 diffuse = light.diffuse * (diff * material.diffuse);"
+    "   vec3 diffuse = light.diffuse * (diff * vec3(texture(material.diffuse, TexCoords)));"
     "   vec3 viewDir = normalize(viewPos - FragPos);"
     "   vec3 reflectDir = reflect(-lightDir, normalDir);"
     "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
@@ -229,47 +234,47 @@ int main(int argc, const char * argv[]) {
     
     //Create data.
     GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
         
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
         
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
         
-        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
         
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
         
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
     
     //Create a VAO and VBO.
@@ -288,10 +293,13 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib_0 = glGetAttribLocation(shaderProgram[0], "position");
     glEnableVertexAttribArray(posAttrib_0);
-    glVertexAttribPointer(posAttrib_0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(posAttrib_0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), 0);
     GLint normalAttrib_0 = glGetAttribLocation(shaderProgram[0], "normal");
     glEnableVertexAttribArray(normalAttrib_0);
-    glVertexAttribPointer(normalAttrib_0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
+    glVertexAttribPointer(normalAttrib_0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
+    GLint texCoordAttrib_0 = glGetAttribLocation(shaderProgram[0], "texCoords");
+    glEnableVertexAttribArray(texCoordAttrib_0);
+    glVertexAttribPointer(texCoordAttrib_0, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(6*sizeof(GL_FLOAT)));
     
     //Bind default VAO.
     glBindVertexArray(vao[0]);
@@ -306,10 +314,29 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib_1 = glGetAttribLocation(shaderProgram[0], "position");
     glEnableVertexAttribArray(posAttrib_1);
-    glVertexAttribPointer(posAttrib_1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(posAttrib_1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), 0);
     
     //Bind default VAO.
     glBindVertexArray(vao[0]);
+    
+    //Load textures
+    GLuint diffuseMap;
+    glGenTextures(1, &diffuseMap);
+    int width, height;
+    unsigned char* image = SOIL_load_image("container.png", &width, &height, 0, SOIL_LOAD_RGB);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuseMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(image);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    glUseProgram(shaderProgram[0]);
+    glUniform1i(glGetUniformLocation(shaderProgram[0], "material.diffuse"), 0);
     
     //lamp position
     glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
@@ -358,10 +385,11 @@ int main(int argc, const char * argv[]) {
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.specular"), 1.0f, 1.0f, 1.0f);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.position"), lampPos.x, lampPos.y, lampPos.z);
         
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "material.ambient"), 1.0f, 0.5f, 0.31f);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "material.diffuse"), 1.0f, 0.5f, 0.31f);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "material.specular"), 0.5f, 0.5f, 0.5f);
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 32.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 64.0f);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);
         
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
