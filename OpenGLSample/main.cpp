@@ -113,20 +113,34 @@ void checkProgram(GLint program)
 const GLchar* vertexSource =
     "#version 150 core\n"
     "in vec3 position;"
+    "in vec3 normal;"
+    "out vec3 Normal;"
+    "out vec3 FragPos;"
     "uniform mat4 model;"
     "uniform mat4 view;"
     "uniform mat4 projection;"
     "void main() {"
     "   gl_Position = projection * view * model * vec4(position, 1.0);"
+    "   FragPos = vec3(model * vec4 (position, 1.0));"
+    "   Normal = mat3(transpose(inverse(model))) * normal;"
     "}";
 
-const GLchar* fragmentSource_light =
+const GLchar* fragmentSource_object =
     "#version 150 core\n"
+    "in vec3 Normal;"
+    "in vec3 FragPos;"
     "out vec4 finalColor;"
     "uniform vec3 objectColor;"
     "uniform vec3 lightColor;"
+    "uniform vec3 lampPos;"
     "void main() {"
-    "   finalColor = vec4(lightColor * objectColor, 1.0);"
+    "   float ambientStrength = 0.3f;"
+    "   vec3 ambient = ambientStrength * lightColor;"
+    "   vec3 normalDir = normalize(Normal);"
+    "   vec3 lightDir = normalize(lampPos - FragPos);"
+    "   float diff = max(dot(normalDir, lightDir), 0.0);"
+    "   vec3 diffuse = diff * lightColor;"
+    "   finalColor = vec4((ambient + diffuse) * objectColor, 1.0);"
     "}";
 
 const GLchar* fragmentSource_lamp =
@@ -174,10 +188,10 @@ int main(int argc, const char * argv[]) {
     glCompileShader(vertexShader);
     checkShader(vertexShader);
     
-    GLint fragmentShader_light = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader_light, 1, &fragmentSource_light, nullptr);
-    glCompileShader(fragmentShader_light);
-    checkShader(fragmentShader_light);
+    GLint fragmentShader_object = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader_object, 1, &fragmentSource_object, nullptr);
+    glCompileShader(fragmentShader_object);
+    checkShader(fragmentShader_object);
     
     GLint fragmentShader_lamp = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader_lamp, 1, &fragmentSource_lamp, nullptr);
@@ -188,7 +202,7 @@ int main(int argc, const char * argv[]) {
     GLint shaderProgram[2];
     shaderProgram[0] = glCreateProgram();
     glAttachShader(shaderProgram[0], vertexShader);
-    glAttachShader(shaderProgram[0], fragmentShader_light);
+    glAttachShader(shaderProgram[0], fragmentShader_object);
     glLinkProgram(shaderProgram[0]);
     checkProgram(shaderProgram[0]);
     
@@ -200,47 +214,47 @@ int main(int argc, const char * argv[]) {
     
     //Create data.
     GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
         
-        -0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
         
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
         
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
         
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
         
-        -0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        0.5f,  0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
     
     //Create a VAO and VBO.
@@ -259,7 +273,10 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib_0 = glGetAttribLocation(shaderProgram[0], "position");
     glEnableVertexAttribArray(posAttrib_0);
-    glVertexAttribPointer(posAttrib_0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(posAttrib_0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
+    GLint normalAttrib_0 = glGetAttribLocation(shaderProgram[0], "normal");
+    glEnableVertexAttribArray(normalAttrib_0);
+    glVertexAttribPointer(normalAttrib_0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
     
     //Bind default VAO.
     glBindVertexArray(vao[0]);
@@ -274,7 +291,7 @@ int main(int argc, const char * argv[]) {
     //Bind VBO to shader attribute.
     GLint posAttrib_1 = glGetAttribLocation(shaderProgram[0], "position");
     glEnableVertexAttribArray(posAttrib_1);
-    glVertexAttribPointer(posAttrib_1, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(posAttrib_1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GL_FLOAT), 0);
     
     //Bind default VAO.
     glBindVertexArray(vao[0]);
@@ -320,6 +337,9 @@ int main(int argc, const char * argv[]) {
         GLint uniLightColor = glGetUniformLocation(shaderProgram[0], "lightColor");
         glUniform3f(uniLightColor, 1.0f, 1.0f, 1.0f);
         
+        GLint uniLampPos = glGetUniformLocation(shaderProgram[0], "lampPos");
+        glUniform3f(uniLampPos, lampPos.x, lampPos.y, lampPos.z);
+        
         ///Draw.
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
@@ -353,7 +373,7 @@ int main(int argc, const char * argv[]) {
     
     glDeleteProgram(shaderProgram[0]);
     glDeleteProgram(shaderProgram[1]);
-    glDeleteShader(fragmentShader_light);
+    glDeleteShader(fragmentShader_object);
     glDeleteShader(fragmentShader_lamp);
     glDeleteShader(vertexShader);
     glDeleteBuffers(2, vbo);
