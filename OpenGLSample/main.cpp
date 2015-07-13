@@ -138,7 +138,7 @@ const GLchar* fragmentSource_object =
     "   float shininess;"
     "};"
     "struct Light{"
-    "   vec3 position;"
+    "   vec3 direction;"
     "   vec3 ambient;"
     "   vec3 diffuse;"
     "   vec3 specular;"
@@ -153,7 +153,7 @@ const GLchar* fragmentSource_object =
     "void main() {"
     "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
     "   vec3 normalDir = normalize(Normal);"
-    "   vec3 lightDir = normalize(light.position - FragPos);"
+    "   vec3 lightDir = normalize(-light.direction);"
     "   float diff = max(dot(normalDir, lightDir), 0.0);"
     "   vec3 diffuse = light.diffuse * (diff * vec3(texture(material.diffuse, TexCoords)));"
     "   vec3 viewDir = normalize(viewPos - FragPos);"
@@ -277,6 +277,19 @@ int main(int argc, const char * argv[]) {
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
     
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+    
     //Create a VAO and VBO.
     GLuint vao[2];
     glGenVertexArrays(2, vao);
@@ -357,6 +370,7 @@ int main(int argc, const char * argv[]) {
     
     //lamp position
     glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 lightDirection(-0.2f, -1.0f, -0.3f);
     
     //GLState
     glEnable(GL_DEPTH_TEST);
@@ -367,10 +381,6 @@ int main(int argc, const char * argv[]) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        
-        //Move lamp
-        lampPos.x = 1.0f + sin(currentFrame) * 2.0f;
-        lampPos.y = sin(currentFrame / 2.0f) * 1.0f;
         
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -384,7 +394,6 @@ int main(int argc, const char * argv[]) {
         ///Setup mvp and uniform.
         glm::mat4 model;
         GLint uniModel = glGetUniformLocation(shaderProgram[0], "model");
-        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         
         glm::mat4 view = camera.GetViewMatrix();
         GLint uniView =glGetUniformLocation(shaderProgram[0], "view");
@@ -400,7 +409,7 @@ int main(int argc, const char * argv[]) {
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.ambient"), 0.2f, 0.2f, 0.2f);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.diffuse"), 0.5f, 0.5f, 0.5f);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.specular"), 1.0f, 1.0f, 1.0f);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.position"), lampPos.x, lampPos.y, lampPos.z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.direction"), lightDirection.x, lightDirection.y, lightDirection.z);
         
         glUniform3f(glGetUniformLocation(shaderProgram[0], "material.specular"), 0.5f, 0.5f, 0.5f);
         glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 64.0f);
@@ -410,27 +419,34 @@ int main(int argc, const char * argv[]) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
         ///Draw.
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (GLuint i=0; i<10; i++) {
+            model = glm::mat4();
+            model = glm::translate(model, cubePositions[i]);
+            GLfloat angle = 20.0f * i;
+            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         
-        //Draw Lamp Cube.
-        ///Use program, bind vao.
-        glUseProgram(shaderProgram[1]);
-        glBindVertexArray(vao[1]);
-        
-        ///Setup mvp and uniform.
-        model = glm::mat4();
-        model = glm::scale(glm::translate(model, lampPos), glm::vec3(0.2f));
-        uniModel = glGetUniformLocation(shaderProgram[1], "model");
-        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-
-        uniView =glGetUniformLocation(shaderProgram[1], "view");
-        glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-        
-        uniProjection = glGetUniformLocation(shaderProgram[1], "projection");
-        glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
-        
-        ///Draw.
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+//        //Draw Lamp Cube.
+//        ///Use program, bind vao.
+//        glUseProgram(shaderProgram[1]);
+//        glBindVertexArray(vao[1]);
+//        
+//        ///Setup mvp and uniform.
+//        model = glm::mat4();
+//        model = glm::scale(glm::translate(model, lampPos), glm::vec3(0.2f));
+//        uniModel = glGetUniformLocation(shaderProgram[1], "model");
+//        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+//
+//        uniView =glGetUniformLocation(shaderProgram[1], "view");
+//        glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+//        
+//        uniProjection = glGetUniformLocation(shaderProgram[1], "projection");
+//        glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
+//        
+//        ///Draw.
+//        glDrawArrays(GL_TRIANGLES, 0, 36);
         
         //Reset.
         glBindTexture(GL_TEXTURE_2D, 0);
