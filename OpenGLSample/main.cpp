@@ -141,6 +141,7 @@ const GLchar* fragmentSource_object =
     "   vec3 position;"
     "   vec3 direction;"
     "   float cutOff;"
+    "   float outerCutOff;"
     "   vec3 ambient;"
     "   vec3 diffuse;"
     "   vec3 specular;"
@@ -156,27 +157,26 @@ const GLchar* fragmentSource_object =
     "uniform Material material;"
     "uniform Light light;"
     "void main() {"
+    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
     "   vec3 lightDir = normalize(light.position - FragPos);"
+    "   vec3 normalDir = normalize(Normal);"
+    "   float diff = max(dot(normalDir, lightDir), 0.0);"
+    "   vec3 diffuse = light.diffuse * (diff * vec3(texture(material.diffuse, TexCoords)));"
+    "   vec3 viewDir = normalize(viewPos - FragPos);"
+    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
+    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
+    "   vec3 specular = light.specular * (spec * vec3(texture(material.specular, TexCoords)));"
     "   float theta = dot(lightDir, normalize(-light.direction));"
-    "   if(theta > light.cutOff){"
-    "       vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
-    "       vec3 normalDir = normalize(Normal);"
-    "       float diff = max(dot(normalDir, lightDir), 0.0);"
-    "       vec3 diffuse = light.diffuse * (diff * vec3(texture(material.diffuse, TexCoords)));"
-    "       vec3 viewDir = normalize(viewPos - FragPos);"
-    "       vec3 reflectDir = reflect(-lightDir, normalDir);"
-    "       float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-    "       vec3 specular = light.specular * (spec * vec3(texture(material.specular, TexCoords)));"
-    "       float distance = length(light.position - FragPos);"
-    "       float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));"
-//    "       ambient *= attenuation;"
-    "       diffuse *= attenuation;"
-    "       specular *= attenuation;"
-    "       finalColor = vec4(ambient + diffuse + specular, 1.0);"
-    "   }"
-    "   else{"
-    "       finalColor = vec4(light.ambient * vec3(texture(material.diffuse, TexCoords)), 1.0);"
-    "   }"
+    "   float epsilon = (light.cutOff - light.outerCutOff);"
+    "   float intensity = clamp((theta - light.outerCutOff)/ epsilon, 0.0, 1.0);"
+    "   diffuse *= intensity;"
+    "   specular *= intensity;"
+    "   float distance = length(light.position - FragPos);"
+    "   float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));"
+    "   ambient *= attenuation;"
+    "   diffuse *= attenuation;"
+    "   specular *= attenuation;"
+    "   finalColor = vec4(ambient + diffuse + specular, 1.0);"
     "}";
 
 const GLchar* fragmentSource_lamp =
@@ -431,6 +431,7 @@ int main(int argc, const char * argv[]) {
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.position"), camera.Position.x, camera.Position.y, camera.Position.z);
         glUniform3f(glGetUniformLocation(shaderProgram[0], "light.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
         glUniform1f(glGetUniformLocation(shaderProgram[0], "light.cutOff"), glm::cos(glm::radians(12.5f)));
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "light.outerCutOff"), glm::cos(glm::radians(17.5f)));
         glUniform1f(glGetUniformLocation(shaderProgram[0], "light.constant"), 1.0f);
         glUniform1f(glGetUniformLocation(shaderProgram[0], "light.linear"), 0.09f);
         glUniform1f(glGetUniformLocation(shaderProgram[0], "light.quadratic"), 0.032f);
