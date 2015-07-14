@@ -436,7 +436,6 @@ int main(int argc, const char * argv[]) {
         glUniform1f(glGetUniformLocation(shaderProgram[0], "light.linear"), 0.09f);
         glUniform1f(glGetUniformLocation(shaderProgram[0], "light.quadratic"), 0.032f);
         
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "material.specular"), 0.5f, 0.5f, 0.5f);
         glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 64.0f);
         
         glActiveTexture(GL_TEXTURE0);
