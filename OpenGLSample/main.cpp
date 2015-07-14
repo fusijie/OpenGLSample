@@ -137,11 +137,14 @@ const GLchar* fragmentSource_object =
     "   sampler2D specular;"
     "   float shininess;"
     "};"
-    "struct Light{"
-    "   vec3 position;"
+    "struct DirLight{"
     "   vec3 direction;"
-    "   float cutOff;"
-    "   float outerCutOff;"
+    "   vec3 ambient;"
+    "   vec3 diffuse;"
+    "   vec3 specular;"
+    "};"
+    "struct PointLight{"
+    "   vec3 position;"
     "   vec3 ambient;"
     "   vec3 diffuse;"
     "   vec3 specular;"
@@ -149,34 +152,83 @@ const GLchar* fragmentSource_object =
     "   float linear;"
     "   float quadratic;"
     "};"
+    "struct SpotLight{"
+    "   vec3 position;"
+    "   vec3 direction;"
+    "   vec3 ambient;"
+    "   vec3 diffuse;"
+    "   vec3 specular;"
+    "   float constant;"
+    "   float linear;"
+    "   float quadratic;"
+    "   float cutOff;"
+    "   float outerCutOff;"
+    "};"
     "in vec2 TexCoords;"
     "in vec3 Normal;"
     "in vec3 FragPos;"
     "out vec4 finalColor;"
     "uniform vec3 viewPos;"
     "uniform Material material;"
-    "uniform Light light;"
-    "void main() {"
+    "uniform DirLight dirLight;"
+    "uniform PointLight pointLights[4];"
+    "uniform SpotLight spotLight;"
+    "vec3 CalcDirLight(DirLight light, vec3 normalDir, vec3 viewDir)"
+    "{"
     "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 lightDir = normalize(light.position - FragPos);"
-    "   vec3 normalDir = normalize(Normal);"
+    "   vec3 lightDir = normalize(-light.direction);"
     "   float diff = max(dot(normalDir, lightDir), 0.0);"
-    "   vec3 diffuse = light.diffuse * (diff * vec3(texture(material.diffuse, TexCoords)));"
-    "   vec3 viewDir = normalize(viewPos - FragPos);"
+    "   vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));"
     "   vec3 reflectDir = reflect(-lightDir, normalDir);"
     "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-    "   vec3 specular = light.specular * (spec * vec3(texture(material.specular, TexCoords)));"
-    "   float theta = dot(lightDir, normalize(-light.direction));"
-    "   float epsilon = (light.cutOff - light.outerCutOff);"
-    "   float intensity = clamp((theta - light.outerCutOff)/ epsilon, 0.0, 1.0);"
-    "   diffuse *= intensity;"
-    "   specular *= intensity;"
-    "   float distance = length(light.position - FragPos);"
-    "   float attenuation = 1.0f / (light.constant + light.linear * distance + light.quadratic * (distance * distance));"
+    "   vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));"
+    "   return (ambient + diffuse + specular);"
+    "}"
+    "vec3 CalcPointLight(PointLight light, vec3 normalDir, vec3 fragPos, vec3 viewDir)"
+    "{"
+    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
+    "   vec3 lightDir = normalize(light.position - fragPos);"
+    "   float diff = max(dot(normalDir, lightDir), 0.0);"
+    "   vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));"
+    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
+    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
+    "   vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));"
+    "   float distance = length(light.position - fragPos);"
+    "   float attenuation = 1.0f/(light.constant + light.linear * distance + light.quadratic * (distance * distance));"
     "   ambient *= attenuation;"
     "   diffuse *= attenuation;"
     "   specular *= attenuation;"
-    "   finalColor = vec4(ambient + diffuse + specular, 1.0);"
+    "   return (ambient + diffuse + specular);"
+    "}"
+    "vec3 CalcSpotLight(SpotLight light, vec3 normalDir, vec3 fragPos, vec3 viewDir)"
+    "{"
+    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
+    "   vec3 lightDir = normalize(light.position - fragPos);"
+    "   float diff = max(dot(normalDir, lightDir), 0.0);"
+    "   vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));"
+    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
+    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
+    "   vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));"
+    "   float distance = length(light.position - fragPos);"
+    "   float attenuation = 1.0f/(light.constant + light.linear * distance + light.quadratic * (distance * distance));"
+    "   ambient *= attenuation;"
+    "   diffuse *= attenuation;"
+    "   specular *= attenuation;"
+    "   float theta = dot(lightDir, normalize(-light.direction));"
+    "   float epsilon = (light.cutOff -light.outerCutOff);"
+    "   float intensity = clamp((theta-light.outerCutOff)/epsilon, 0.0, 1.0);"
+    "   diffuse *= intensity;"
+    "   specular *= intensity;"
+    "   return (ambient + diffuse + specular);"
+    "}"
+    "void main() {"
+    "   vec3 normalDir = normalize(Normal);"
+    "   vec3 viewDir = normalize(viewPos - FragPos);"
+    "   vec3 result = CalcDirLight(dirLight, normalDir, viewDir);"
+    "   for(int i=0; i<4; i++)"
+    "       result += CalcPointLight(pointLights[i], normalDir, FragPos, viewDir);"
+    "   result += CalcSpotLight(spotLight, normalDir, FragPos, viewDir);"
+    "   finalColor = vec4(result, 1.0);"
     "}";
 
 const GLchar* fragmentSource_lamp =
@@ -385,7 +437,12 @@ int main(int argc, const char * argv[]) {
     glUniform1i(glGetUniformLocation(shaderProgram[0], "material.specular"), 1);
     
     //lamp position
-    glm::vec3 lampPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f,  0.2f,  2.0f),
+        glm::vec3( 2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f,  2.0f, -12.0f),
+        glm::vec3( 0.0f,  0.0f, -3.0f)
+    };
     
     //GLState
     glEnable(GL_DEPTH_TEST);
@@ -396,10 +453,6 @@ int main(int argc, const char * argv[]) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        
-        //Move lamp
-        lampPos.x = 1.0f + sin(currentFrame) * 2.0f;
-        lampPos.y = sin(currentFrame / 2.0f) * 1.0f;
         
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -425,19 +478,55 @@ int main(int argc, const char * argv[]) {
         GLint uniViewPos = glGetUniformLocation(shaderProgram[0], "viewPos");
         glUniform3f(uniViewPos, camera.Position.x, camera.Position.y, camera.Position.z);
         
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.ambient"), 0.3f, 0.3f, 0.3f);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.diffuse"), 0.5f, 0.5f, 0.5f);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.specular"), 1.0f, 1.0f, 1.0f);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.position"), camera.Position.x, camera.Position.y, camera.Position.z);
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "light.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "light.cutOff"), glm::cos(glm::radians(12.5f)));
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "light.outerCutOff"), glm::cos(glm::radians(17.5f)));
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "light.constant"), 1.0f);
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "light.linear"), 0.09f);
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "light.quadratic"), 0.032f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "dirLight.ambient"), 0.05f, 0.05f, 0.05f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "dirLight.direction"), -0.2f, -1.0f, -0.3f);
         
-        glUniform3f(glGetUniformLocation(shaderProgram[0], "material.specular"), 0.5f, 0.5f, 0.5f);
-        glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 64.0f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[0].ambient"), 0.05f, 0.05f, 0.05f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[0].diffuse"), 0.8f, 0.8f, 0.8f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[0].specular"), 1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[0].constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[0].linear"), 0.09);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[0].quadratic"), 0.032);
+        
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[1].position"), pointLightPositions[1].x, pointLightPositions[1].y, pointLightPositions[1].z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[1].ambient"), 0.05f, 0.05f, 0.05f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[1].diffuse"), 0.8f, 0.8f, 0.8f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[1].specular"), 1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[1].constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[1].linear"), 0.09);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[1].quadratic"), 0.032);
+        
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[2].position"), pointLightPositions[2].x, pointLightPositions[2].y, pointLightPositions[2].z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[2].ambient"), 0.05f, 0.05f, 0.05f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[2].diffuse"), 0.8f, 0.8f, 0.8f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[2].specular"), 1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[2].constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[2].linear"), 0.09);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[2].quadratic"), 0.032);
+        
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[3].position"), pointLightPositions[3].x, pointLightPositions[3].y, pointLightPositions[3].z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[3].ambient"), 0.05f, 0.05f, 0.05f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[3].diffuse"), 0.8f, 0.8f, 0.8f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "pointLights[3].specular"), 1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[3].constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[3].linear"), 0.09);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "pointLights[3].quadratic"), 0.032);
+        
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "spotLight.position"), camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "spotLight.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(shaderProgram[0], "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "spotLight.constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "spotLight.linear"), 0.09);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "spotLight.quadratic"), 0.032);
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
+        
+        glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 32.0f);
         
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
@@ -453,26 +542,27 @@ int main(int argc, const char * argv[]) {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         
-//        //Draw Lamp Cube.
-//        ///Use program, bind vao.
-//        glUseProgram(shaderProgram[1]);
-//        glBindVertexArray(vao[1]);
-//        
-//        ///Setup mvp and uniform.
-//        model = glm::mat4();
-//        model = glm::scale(glm::translate(model, lampPos), glm::vec3(0.2f));
-//        uniModel = glGetUniformLocation(shaderProgram[1], "model");
-//        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-//
-//        uniView =glGetUniformLocation(shaderProgram[1], "view");
-//        glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
-//        
-//        uniProjection = glGetUniformLocation(shaderProgram[1], "projection");
-//        glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
-//        
-//        ///Draw.
-//        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //Draw Lamp Cube.
+        ///Use program, bind vao.
+        glUseProgram(shaderProgram[1]);
+        glBindVertexArray(vao[1]);
         
+        ///Setup mvp and uniform.
+        uniView =glGetUniformLocation(shaderProgram[1], "view");
+        glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+        
+        uniProjection = glGetUniformLocation(shaderProgram[1], "projection");
+        glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
+        
+        for (int i=0; i<4; i++) {
+            model = glm::mat4();
+            model = glm::scale(glm::translate(model, pointLightPositions[i]), glm::vec3(0.2f));
+            uniModel = glGetUniformLocation(shaderProgram[1], "model");
+            glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+            
+            ///Draw.
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         //Reset.
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
