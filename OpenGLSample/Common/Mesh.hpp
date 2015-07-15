@@ -29,7 +29,7 @@ using namespace std;
 struct Vertex{
     glm::vec3 Position;
     glm::vec3 Normal;
-    glm::vec3 TexCoords;
+    glm::vec2 TexCoords;
 };
 
 struct Texture{
@@ -43,15 +43,17 @@ public:
     vector<Vertex> vertices;
     vector<GLuint> indices;
     vector<Texture> textures;
+    GLuint program;
     
-    Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures){
+    Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, GLuint program){
         this->vertices = vertices;
         this->indices = indices;
         this->textures = textures;
+        this->program = program;
         this->setupMesh();
     }
     
-    void draw(Program program){
+    void draw(){
         GLuint diffuseNr = 1;
         GLuint specularNr = 1;
         for(GLuint i = 0; i < this->textures.size(); i++)
@@ -67,13 +69,13 @@ public:
                 ss << specularNr++; // Transfer GLuint to stream
             number = ss.str();
             // Now set the sampler to the correct texture unit
-            glUniform1f(glGetUniformLocation(program.getProgram(), (name + number).c_str()), i);
+            glUniform1f(glGetUniformLocation(this->program, (name + number).c_str()), i);
             // And finally bind the texture
             glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
         }
         
         // Also set each mesh's shininess property to a default value (if you want you could extend this to another mesh property and possibly change this value)
-        glUniform1f(glGetUniformLocation(program.getProgram(), "material.shininess"), 16.0f);
+        glUniform1f(glGetUniformLocation(this->program, "material.shininess"), 16.0f);
         
         // Draw mesh
         glBindVertexArray(this->vao);
@@ -100,12 +102,16 @@ private:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), &this->indices[0], GL_STATIC_DRAW);
         
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
+        
+        GLint attrPos = glGetUniformLocation(this->program, "position");
+        glEnableVertexAttribArray(attrPos);
+        glVertexAttribPointer(attrPos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+        GLint attrNormal = glGetUniformLocation(this->program, "normal");
+        glEnableVertexAttribArray(attrNormal);
+        glVertexAttribPointer(attrNormal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
+        GLint attrTexCoords = glGetUniformLocation(this->program, "texCoords");
+        glEnableVertexAttribArray(attrTexCoords);
+        glVertexAttribPointer(attrTexCoords, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
         
         glBindVertexArray(0);
     }
