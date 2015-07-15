@@ -8,15 +8,28 @@
 
 #define GLFW_INCLUDE_GLCOREARB
 #include <iostream>
+
+//GLFW Includes
 #include "glfw3.h"
 
+//GLM Includes
 #include "GLM/glm.hpp"
 #include "GLM/gtc/matrix_transform.hpp"
 #include "GLM/gtc/type_ptr.hpp"
 
+//SOIL Includes
 #include "SOIL.h"
 
-#include "Camera.hpp"
+//Assimp Includes
+#include "Assimp/assimp/Importer.hpp"
+#include "Assimp/assimp/scene.h"
+#include "Assimp/assimp/postprocess.h"
+
+//Common Includes
+#include "Common/Camera.hpp"
+#include "Common/Program.hpp"
+#include "Common/Mesh.hpp"
+
 
 //Global vars.
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -26,7 +39,7 @@ GLfloat lastY  =  HEIGHT / 2.0;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 bool firstMouse = true;
-bool    keys[1024];
+bool keys[1024];
 
 //GLFW callbacks.
 void error_callback(int error, const char* description)
@@ -84,160 +97,6 @@ void do_movement()
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-void checkShader(GLint shader)
-{
-    GLint status;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-    if(GL_FALSE == status)
-    {
-        char buffer[512];
-        glGetShaderInfoLog(shader, 512, nullptr, buffer);
-        std::string log = buffer;
-        printf("%s", log.c_str());
-    }
-}
-
-void checkProgram(GLint program)
-{
-    GLint status;
-    glGetProgramiv(program, GL_LINK_STATUS, &status);
-    if(GL_FALSE == status)
-    {
-        char buffer[512];
-        glGetProgramInfoLog(program, 512, nullptr, buffer);
-        std::string log = buffer;
-        printf("%s",log.c_str());
-    }
-}
-
-
-//Shader source
-const GLchar* vertexSource =
-    "#version 150 core\n"
-    "in vec3 position;"
-    "in vec3 normal;"
-    "in vec2 texCoords;"
-    "out vec3 Normal;"
-    "out vec3 FragPos;"
-    "out vec2 TexCoords;"
-    "uniform mat4 model;"
-    "uniform mat4 view;"
-    "uniform mat4 projection;"
-    "void main() {"
-    "   gl_Position = projection * view * model * vec4(position, 1.0);"
-    "   FragPos = vec3(model * vec4 (position, 1.0));"
-    "   Normal = mat3(transpose(inverse(model))) * normal;"
-    "   TexCoords = texCoords;"
-    "}";
-
-const GLchar* fragmentSource_object =
-    "#version 150 core\n"
-    "struct Material{"
-    "   sampler2D diffuse;"
-    "   sampler2D specular;"
-    "   float shininess;"
-    "};"
-    "struct DirLight{"
-    "   vec3 direction;"
-    "   vec3 ambient;"
-    "   vec3 diffuse;"
-    "   vec3 specular;"
-    "};"
-    "struct PointLight{"
-    "   vec3 position;"
-    "   vec3 ambient;"
-    "   vec3 diffuse;"
-    "   vec3 specular;"
-    "   float constant;"
-    "   float linear;"
-    "   float quadratic;"
-    "};"
-    "struct SpotLight{"
-    "   vec3 position;"
-    "   vec3 direction;"
-    "   vec3 ambient;"
-    "   vec3 diffuse;"
-    "   vec3 specular;"
-    "   float constant;"
-    "   float linear;"
-    "   float quadratic;"
-    "   float cutOff;"
-    "   float outerCutOff;"
-    "};"
-    "in vec2 TexCoords;"
-    "in vec3 Normal;"
-    "in vec3 FragPos;"
-    "out vec4 finalColor;"
-    "uniform vec3 viewPos;"
-    "uniform Material material;"
-    "uniform DirLight dirLight;"
-    "uniform PointLight pointLights[4];"
-    "uniform SpotLight spotLight;"
-    "vec3 CalcDirLight(DirLight light, vec3 normalDir, vec3 viewDir)"
-    "{"
-    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 lightDir = normalize(-light.direction);"
-    "   float diff = max(dot(normalDir, lightDir), 0.0);"
-    "   vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
-    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-    "   vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));"
-    "   return (ambient + diffuse + specular);"
-    "}"
-    "vec3 CalcPointLight(PointLight light, vec3 normalDir, vec3 fragPos, vec3 viewDir)"
-    "{"
-    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 lightDir = normalize(light.position - fragPos);"
-    "   float diff = max(dot(normalDir, lightDir), 0.0);"
-    "   vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
-    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-    "   vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));"
-    "   float distance = length(light.position - fragPos);"
-    "   float attenuation = 1.0f/(light.constant + light.linear * distance + light.quadratic * (distance * distance));"
-    "   ambient *= attenuation;"
-    "   diffuse *= attenuation;"
-    "   specular *= attenuation;"
-    "   return (ambient + diffuse + specular);"
-    "}"
-    "vec3 CalcSpotLight(SpotLight light, vec3 normalDir, vec3 fragPos, vec3 viewDir)"
-    "{"
-    "   vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 lightDir = normalize(light.position - fragPos);"
-    "   float diff = max(dot(normalDir, lightDir), 0.0);"
-    "   vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));"
-    "   vec3 reflectDir = reflect(-lightDir, normalDir);"
-    "   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);"
-    "   vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));"
-    "   float distance = length(light.position - fragPos);"
-    "   float attenuation = 1.0f/(light.constant + light.linear * distance + light.quadratic * (distance * distance));"
-    "   ambient *= attenuation;"
-    "   diffuse *= attenuation;"
-    "   specular *= attenuation;"
-    "   float theta = dot(lightDir, normalize(-light.direction));"
-    "   float epsilon = (light.cutOff -light.outerCutOff);"
-    "   float intensity = clamp((theta-light.outerCutOff)/epsilon, 0.0, 1.0);"
-    "   diffuse *= intensity;"
-    "   specular *= intensity;"
-    "   return (ambient + diffuse + specular);"
-    "}"
-    "void main() {"
-    "   vec3 normalDir = normalize(Normal);"
-    "   vec3 viewDir = normalize(viewPos - FragPos);"
-    "   vec3 result = CalcDirLight(dirLight, normalDir, viewDir);"
-    "   for(int i=0; i<4; i++)"
-    "       result += CalcPointLight(pointLights[i], normalDir, FragPos, viewDir);"
-    "   result += CalcSpotLight(spotLight, normalDir, FragPos, viewDir);"
-    "   finalColor = vec4(result, 1.0);"
-    "}";
-
-const GLchar* fragmentSource_lamp =
-    "#version 150 core\n"
-    "out vec4 finalColor;"
-    "void main() {"
-    "   finalColor = vec4(1.0);"
-"}";
-
 int main(int argc, const char * argv[]) {
     // insert code here...
     
@@ -271,34 +130,12 @@ int main(int argc, const char * argv[]) {
     glfwSetScrollCallback(window, scroll_callback);
     
     //Shade operation
-    GLint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, nullptr);
-    glCompileShader(vertexShader);
-    checkShader(vertexShader);
+    Program objectProgram("object.vs", "object.fs");
+    Program lampProgram("lamp.vs", "lamp.fs");
     
-    GLint fragmentShader_object = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader_object, 1, &fragmentSource_object, nullptr);
-    glCompileShader(fragmentShader_object);
-    checkShader(fragmentShader_object);
-    
-    GLint fragmentShader_lamp = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader_lamp, 1, &fragmentSource_lamp, nullptr);
-    glCompileShader(fragmentShader_lamp);
-    checkShader(fragmentShader_lamp);
-    
-    //Program operation
-    GLint shaderProgram[2];
-    shaderProgram[0] = glCreateProgram();
-    glAttachShader(shaderProgram[0], vertexShader);
-    glAttachShader(shaderProgram[0], fragmentShader_object);
-    glLinkProgram(shaderProgram[0]);
-    checkProgram(shaderProgram[0]);
-    
-    shaderProgram[1] = glCreateProgram();
-    glAttachShader(shaderProgram[1], vertexShader);
-    glAttachShader(shaderProgram[1], fragmentShader_lamp);
-    glLinkProgram(shaderProgram[1]);
-    checkProgram(shaderProgram[1]);
+    GLuint shaderProgram[2];
+    shaderProgram[0] = objectProgram.getProgram();
+    shaderProgram[1] = lampProgram.getProgram();
     
     //Create data.
     GLfloat vertices[] = {
@@ -383,7 +220,7 @@ int main(int argc, const char * argv[]) {
     glVertexAttribPointer(texCoordAttrib_0, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(6*sizeof(GL_FLOAT)));
     
     //Bind default VAO.
-    glBindVertexArray(vao[0]);
+    glBindVertexArray(0);
     
     //Bind second VAO.
     glBindVertexArray(vao[1]);
@@ -393,12 +230,12 @@ int main(int argc, const char * argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
     //Bind VBO to shader attribute.
-    GLint posAttrib_1 = glGetAttribLocation(shaderProgram[0], "position");
+    GLint posAttrib_1 = glGetAttribLocation(shaderProgram[1], "position");
     glEnableVertexAttribArray(posAttrib_1);
     glVertexAttribPointer(posAttrib_1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), 0);
     
     //Bind default VAO.
-    glBindVertexArray(vao[0]);
+    glBindVertexArray(0);
     
     //Load textures
     GLuint diffuseMap;
@@ -528,10 +365,12 @@ int main(int argc, const char * argv[]) {
         
         glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 32.0f);
         
+        ///Active texture.
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, specularMap);
+        
         ///Draw.
         for (GLuint i=0; i<10; i++) {
             model = glm::mat4();
@@ -563,20 +402,17 @@ int main(int argc, const char * argv[]) {
             ///Draw.
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        
         //Reset.
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
         
+        //Misc
         glfwSwapBuffers(window);
         glfwPollEvents();
         do_movement();
     }
     
-    glDeleteProgram(shaderProgram[0]);
-    glDeleteProgram(shaderProgram[1]);
-    glDeleteShader(fragmentShader_object);
-    glDeleteShader(fragmentShader_lamp);
-    glDeleteShader(vertexShader);
     glDeleteBuffers(2, vbo);
     glDeleteVertexArrays(2, vao);
     
