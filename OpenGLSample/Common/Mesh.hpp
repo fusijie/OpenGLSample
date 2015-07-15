@@ -18,6 +18,9 @@
 // GLM Includes
 #include "../GLM/glm.hpp"
 
+//Assimp
+#include "../Assimp/assimp/types.h"
+
 //Common Includes
 #include "Program.hpp"
 
