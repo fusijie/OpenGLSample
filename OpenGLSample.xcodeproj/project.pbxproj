@@ -109,7 +109,6 @@
 		8551EBB51B56A4A300A10476 /* object.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = object.fs; sourceTree = "<group>"; };
 		8551EBB61B56A4A300A10476 /* object.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = object.vs; sourceTree = "<group>"; };
 		8551EBB81B56A4CC00A10476 /* Camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Camera.hpp; sourceTree = "<group>"; };
-		8551EBB91B56A4CC00A10476 /* Mesh.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Mesh.hpp; sourceTree = "<group>"; };
 		8551EBBA1B56A4CC00A10476 /* Program.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Program.hpp; sourceTree = "<group>"; };
 		8551ECC31B56A5CD00A10476 /* GLM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GLM; path = OpenGLSample/GLM; sourceTree = "<group>"; };
 		85681C731B52C0C8002B7B8C /* container.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container.png; path = OpenGLSample/Resources/container.png; sourceTree = "<group>"; };
@@ -291,7 +290,6 @@
 			isa = PBXGroup;
 			children = (
 				8551EBB81B56A4CC00A10476 /* Camera.hpp */,
-				8551EBB91B56A4CC00A10476 /* Mesh.hpp */,
 				8551EBBA1B56A4CC00A10476 /* Program.hpp */,
 			);
 			name = Common;

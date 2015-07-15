@@ -28,8 +28,6 @@
 //Common Includes
 #include "Common/Camera.hpp"
 #include "Common/Program.hpp"
-#include "Common/Mesh.hpp"
-
 
 //Global vars.
 const GLuint WIDTH = 800, HEIGHT = 600;
