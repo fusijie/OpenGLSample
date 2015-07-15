@@ -383,7 +383,7 @@ int main(int argc, const char * argv[]) {
     glVertexAttribPointer(texCoordAttrib_0, 2, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), (void*)(6*sizeof(GL_FLOAT)));
     
     //Bind default VAO.
-    glBindVertexArray(vao[0]);
+    glBindVertexArray(0);
     
     //Bind second VAO.
     glBindVertexArray(vao[1]);
@@ -393,12 +393,12 @@ int main(int argc, const char * argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
     //Bind VBO to shader attribute.
-    GLint posAttrib_1 = glGetAttribLocation(shaderProgram[0], "position");
+    GLint posAttrib_1 = glGetAttribLocation(shaderProgram[1], "position");
     glEnableVertexAttribArray(posAttrib_1);
     glVertexAttribPointer(posAttrib_1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(GL_FLOAT), 0);
     
     //Bind default VAO.
-    glBindVertexArray(vao[0]);
+    glBindVertexArray(0);
     
     //Load textures
     GLuint diffuseMap;
@@ -527,7 +527,7 @@ int main(int argc, const char * argv[]) {
         glUniform1f(glGetUniformLocation(shaderProgram[0], "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
         
         glUniform1f(glGetUniformLocation(shaderProgram[0], "material.shininess"), 32.0f);
-        
+        ///Active texture.
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMap);
         glActiveTexture(GL_TEXTURE1);
@@ -563,10 +563,12 @@ int main(int argc, const char * argv[]) {
             ///Draw.
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        
         //Reset.
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
         
+        //Misc.
         glfwSwapBuffers(window);
         glfwPollEvents();
         do_movement();
