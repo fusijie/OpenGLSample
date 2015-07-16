@@ -129,7 +129,7 @@ int main(int argc, const char * argv[]) {
     
     //Shade & Model
     Program nanosuitProgram("nanosuit.vs", "nanosuit.fs");
-    Model nanosuitModel("nanosuit.obj", nanosuitProgram.getProgram());
+    Model nanosuitModel("nanosuit/nanosuit.obj", nanosuitProgram.getProgram());
     
     while (!glfwWindowShouldClose(window)) {
         
