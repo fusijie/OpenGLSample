@@ -102,16 +102,12 @@ private:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->indices.size() * sizeof(GLuint), &this->indices[0], GL_STATIC_DRAW);
         
-        
-        GLint attrPos = glGetUniformLocation(this->program, "position");
-        glEnableVertexAttribArray(attrPos);
-        glVertexAttribPointer(attrPos, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-        GLint attrNormal = glGetUniformLocation(this->program, "normal");
-        glEnableVertexAttribArray(attrNormal);
-        glVertexAttribPointer(attrNormal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
-        GLint attrTexCoords = glGetUniformLocation(this->program, "texCoords");
-        glEnableVertexAttribArray(attrTexCoords);
-        glVertexAttribPointer(attrTexCoords, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
         
         glBindVertexArray(0);
     }

@@ -74,32 +74,133 @@ public:
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         }
         // Shader Program
-        this->program = glCreateProgram();
-        glAttachShader(this->program, vertex);
-        glAttachShader(this->program, fragment);
-        glLinkProgram(this->program);
+        this->_program = glCreateProgram();
+        glAttachShader(this->_program, vertex);
+        glAttachShader(this->_program, fragment);
+        
+        // Bind Predefined VertexAttribs
+        bindPredefinedVertexAttribs();
+        
+        //Link program
+        glLinkProgram(this->_program);
         // Print linking errors if any
-        glGetProgramiv(this->program, GL_LINK_STATUS, &success);
+        glGetProgramiv(this->_program, GL_LINK_STATUS, &success);
         if (!success)
         {
-            glGetProgramInfoLog(this->program, 512, NULL, infoLog);
+            glGetProgramInfoLog(this->_program, 512, NULL, infoLog);
             std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
         }
         // Delete the shaders as they're linked into our program now and no longer necessery
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+        
+        logVertexAttribsAndUniforms();
     }
     
     void use(){
-        glUseProgram(this->program);
+        glUseProgram(this->_program);
     }
     
     GLuint getProgram(){
-        return program;
+        return _program;
     }
     
 private:
-    GLuint program;
+    GLuint _program;
+    //Catch from Cocos2d-x
+    void bindPredefinedVertexAttribs()
+    {
+        static const struct {
+            const char *attributeName;
+            int location;
+        } attribute_locations[] =
+        {
+            {"position", 0},
+            {"normal", 1},
+            {"texCoords", 2},
+        };
+        
+        const int size = sizeof(attribute_locations) / sizeof(attribute_locations[0]);
+        
+        for(int i = 0; i < size; i++) {
+            glBindAttribLocation(this->_program, attribute_locations[i].location, attribute_locations[i].attributeName);
+        }
+    }
+    //Catch from Cocos2d-x
+    void logVertexAttribsAndUniforms()
+    {
+        logVertexAttribs();
+        logUniforms();
+    }
+    void logVertexAttribs()
+    {
+        struct VertexAttrib
+        {
+            GLuint location;
+            GLint size;
+            GLenum type;
+            std::string name;
+            void log(){
+                std::cout << "name: " <<  name << ";" << " location: " << location << std::endl;
+            }
+        };
+        GLint activeAttributes;
+        GLint length;
+        glGetProgramiv(this->_program, GL_ACTIVE_ATTRIBUTES, &activeAttributes);
+        std::cout << "[attribute] : " << activeAttributes << std::endl;
+        if(activeAttributes > 0)
+        {
+            VertexAttrib attribute;
+            glGetProgramiv(this->_program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &length);
+            if(length > 0)
+            {
+                GLchar* attribName = (GLchar*) alloca(length + 1);
+                for(int i = 0; i < activeAttributes; ++i)
+                {
+                    glGetActiveAttrib(this->_program, i, length, nullptr, &attribute.size, &attribute.type, attribName);
+                    attribName[length] = '\0';
+                    attribute.name = std::string(attribName);
+                    attribute.location = glGetAttribLocation(this->_program, attribName);
+                    attribute.log();
+                }
+            }
+        }
+
+    }
+    void logUniforms()
+    {
+        struct Uniform
+        {
+            GLint location;
+            GLint size;
+            GLenum type;
+            std::string name;
+            void log(){
+                std::cout << "name: " <<  name << ";" << " location: " << location << std::endl;
+            }
+        };
+        GLint activeUniforms;
+        GLint length;
+        glGetProgramiv(this->_program, GL_ACTIVE_UNIFORMS, &activeUniforms);
+        std::cout << "[uniform] : " << activeUniforms << std::endl;
+        if(activeUniforms > 0)
+        {
+            Uniform uniform;
+            glGetProgramiv(this->_program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &length);
+            if(length > 0)
+            {
+                GLchar* uniformName = (GLchar*)alloca(length + 1);
+                for(int i = 0; i < activeUniforms; ++i)
+                {
+                    glGetActiveUniform(this->_program, i, length, nullptr, &uniform.size, &uniform.type, uniformName);
+                    uniformName[length] = '\0';
+                    uniform.name = std::string(uniformName);
+                    uniform.location = glGetUniformLocation(this->_program, uniformName);
+                    uniform.log();
+                }
+            }
+        }
+    }
 };
 
 #endif
