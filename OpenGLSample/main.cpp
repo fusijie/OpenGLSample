@@ -129,7 +129,7 @@ int main(int argc, const char * argv[]) {
     
     //Shade & Model
     Program nanosuitProgram("nanosuit.vs", "nanosuit.fs");
-    Model nanosuitModel("nanosuit/nanosuit.obj", nanosuitProgram.getProgram());
+    Model nanosuitModel("nanosuit/nanosuit.obj");
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -153,7 +153,7 @@ int main(int argc, const char * argv[]) {
         model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-        nanosuitModel.draw();
+        nanosuitModel.draw(nanosuitProgram.getProgram());
         
         //Misc
         glfwSwapBuffers(window);

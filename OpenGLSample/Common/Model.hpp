@@ -29,23 +29,22 @@ using namespace std;
 class Model
 {
 public:
-    Model(const char* filename, GLuint program)
+    Model(const char* filename)
     {
-        this->loadModel(filename, program);
+        this->loadModel(filename);
     }
-    void draw()
+    void draw(GLuint program)
     {
         for (int i = 0; i < this->meshes.size(); i++) {
-            this->meshes[i].draw();
+            this->meshes[i].draw(program);
         }
     }
 private:
     vector<Mesh> meshes;
     string directory;
     vector<Texture> textures_loaded;
-    GLuint program;
 
-    void loadModel(string filename, GLuint program)
+    void loadModel(string filename)
     {
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -54,7 +53,6 @@ private:
             return;
         }
         this->directory = filename.substr(0, filename.find_last_of('/'));
-        this->program = program;
         this->processNode(scene->mRootNode, scene);
     }
     void processNode(aiNode* node, const aiScene* scene)
@@ -115,7 +113,7 @@ private:
             vector<Texture> specularMaps_textures = this->loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
             textures.insert(textures.end(), specularMaps_textures.begin(), specularMaps_textures.end());        }
         
-        return Mesh(vertices, indices, textures, this->program);
+        return Mesh(vertices, indices, textures);
     }
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
     {
