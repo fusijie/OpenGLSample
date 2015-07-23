@@ -39,6 +39,18 @@ public:
             this->meshes[i].draw(program);
         }
     }
+    ~Model()
+    {
+        for (int i=0; i<this->textures_loaded.size(); i++) {
+            glDeleteTextures(1, &this->textures_loaded[i].id);
+        }
+        
+        for (int i=0; i<this->meshes.size(); i++) {
+            glDeleteVertexArrays(1, &this->meshes[i].getVAO());
+            glDeleteBuffers(1, &this->meshes[i].getVBO());
+            glDeleteBuffers(1, &this->meshes[i].getEBO());
+        }
+    }
 private:
     vector<Mesh> meshes;
     string directory;
