@@ -223,6 +223,11 @@ int main(int argc, const char * argv[]) {
         
         // Set the lighting uniforms
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+        //Direction light
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.ambient"), 0.05f, 0.05f, 0.05f);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.specular"), 0.5f, 0.5f, 0.5f);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.direction"), -0.2f, -1.0f, -0.3f);
         // Point light 1
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "pointLights[0].position"), pointLightPositions[0].x, pointLightPositions[0].y, pointLightPositions[0].z);
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "pointLights[0].ambient"), 0.05f, 0.05f, 0.05f);
