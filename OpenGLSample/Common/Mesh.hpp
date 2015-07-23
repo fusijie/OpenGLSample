@@ -87,6 +87,21 @@ public:
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     }
+    
+    GLuint& getVAO()
+    {
+        return vao;
+    }
+    
+    GLuint& getVBO()
+    {
+        return vbo;
+    }
+    
+    GLuint& getEBO()
+    {
+        return ebo;
+    }
 private:
     GLuint vao, vbo, ebo;
     void setupMesh(){
