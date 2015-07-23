@@ -220,10 +220,9 @@ int main(int argc, const char * argv[]) {
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-        
         // Set the lighting uniforms
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-        //Direction light
+        // Direction light
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.ambient"), 0.05f, 0.05f, 0.05f);
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "dirLight.specular"), 0.5f, 0.5f, 0.5f);
@@ -244,6 +243,17 @@ int main(int argc, const char * argv[]) {
         glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "pointLights[1].constant"), 1.0f);
         glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "pointLights[1].linear"), 0.009);
         glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "pointLights[1].quadratic"), 0.0032);
+        // Spot light
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.position"), camera.Position.x, camera.Position.y, camera.Position.z);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.ambient"), 0.0f, 0.0f, 0.0f);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.diffuse"), 1.0f, 1.0f, 1.0f);
+        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.specular"), 1.0f, 1.0f, 1.0f);
+        glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.constant"), 1.0f);
+        glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.linear"), 0.09);
+        glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.quadratic"), 0.032);
+        glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.cutOff"), glm::cos(glm::radians(12.5f)));
+        glUniform1f(glGetUniformLocation(nanosuitProgram.getProgram(), "spotLight.outerCutOff"), glm::cos(glm::radians(15.0f)));
         
         // Draw the loaded model
         nanosuitModel.draw(nanosuitProgram.getProgram());
