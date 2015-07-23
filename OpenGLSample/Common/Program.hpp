@@ -94,8 +94,13 @@ public:
         glUseProgram(this->program);
     }
     
-    GLuint getProgram(){
+    GLuint& getProgram(){
         return program;
+    }
+    
+    ~Program()
+    {
+        glDeleteProgram(program);
     }
     
 private:
