@@ -23,6 +23,10 @@
 		8551EBBE1B56A4D400A10476 /* object.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 8551EBB61B56A4A300A10476 /* object.vs */; };
 		85681C741B52C0D8002B7B8C /* container.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85681C731B52C0C8002B7B8C /* container.png */; };
 		85681C761B52CBDC002B7B8C /* container_specular.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85681C751B52CBD5002B7B8C /* container_specular.png */; };
+		85E29DE71B652C2A004FD08D /* metal.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE51B652C11004FD08D /* metal.png */; };
+		85E29DE81B652C2A004FD08D /* pattern4diffuseblack.jpg in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */; };
+		85E29DE91B652C2A004FD08D /* advanced.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE31B652B39004FD08D /* advanced.fs */; };
+		85E29DEA1B652C2A004FD08D /* advanced.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE41B652B4C004FD08D /* advanced.vs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +36,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				85E29DE71B652C2A004FD08D /* metal.png in Copy Files */,
+				85E29DE81B652C2A004FD08D /* pattern4diffuseblack.jpg in Copy Files */,
+				85E29DE91B652C2A004FD08D /* advanced.fs in Copy Files */,
+				85E29DEA1B652C2A004FD08D /* advanced.vs in Copy Files */,
 				8551EBBB1B56A4D400A10476 /* lamp.fs in Copy Files */,
 				8551EBBC1B56A4D400A10476 /* lamp.vs in Copy Files */,
 				8551EBBD1B56A4D400A10476 /* object.fs in Copy Files */,
@@ -113,6 +121,10 @@
 		8551ECC31B56A5CD00A10476 /* GLM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GLM; path = OpenGLSample/GLM; sourceTree = "<group>"; };
 		85681C731B52C0C8002B7B8C /* container.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container.png; path = OpenGLSample/Resources/container.png; sourceTree = "<group>"; };
 		85681C751B52CBD5002B7B8C /* container_specular.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container_specular.png; path = OpenGLSample/Resources/container_specular.png; sourceTree = "<group>"; };
+		85E29DE31B652B39004FD08D /* advanced.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = advanced.fs; sourceTree = "<group>"; };
+		85E29DE41B652B4C004FD08D /* advanced.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = advanced.vs; sourceTree = "<group>"; };
+		85E29DE51B652C11004FD08D /* metal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = metal.png; path = OpenGLSample/Resources/metal.png; sourceTree = "<group>"; };
+		85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = pattern4diffuseblack.jpg; path = OpenGLSample/Resources/pattern4diffuseblack.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +211,8 @@
 		854D5C0F1B31287A006BF4B1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				85E29DE51B652C11004FD08D /* metal.png */,
+				85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */,
 				85681C751B52CBD5002B7B8C /* container_specular.png */,
 				85681C731B52C0C8002B7B8C /* container.png */,
 				854D5C141B313F75006BF4B1 /* puppy.png */,
@@ -281,6 +295,8 @@
 				8551EBB41B56A4A300A10476 /* lamp.vs */,
 				8551EBB51B56A4A300A10476 /* object.fs */,
 				8551EBB61B56A4A300A10476 /* object.vs */,
+				85E29DE31B652B39004FD08D /* advanced.fs */,
+				85E29DE41B652B4C004FD08D /* advanced.vs */,
 			);
 			name = Shaders;
 			path = OpenGLSample/Shaders;
