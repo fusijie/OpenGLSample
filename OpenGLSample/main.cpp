@@ -377,7 +377,7 @@ int main(int argc, const char * argv[]) {
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
         
-        //5.GL state
+        //7.GL state
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_STENCIL_TEST);
         
