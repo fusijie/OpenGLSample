@@ -327,7 +327,6 @@ int main(int argc, const char * argv[]) {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
         //4.GL state
-        glDisable(GL_DEPTH_TEST);
         glStencilMask(0x00);
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         
