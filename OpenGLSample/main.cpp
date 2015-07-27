@@ -309,7 +309,7 @@ int main(int argc, const char * argv[]) {
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         
-        //Draw Object cube.
+        //Draw Object cube 1.
         glBindVertexArray(vao[0]);
         
         glActiveTexture(GL_TEXTURE0);
@@ -321,17 +321,11 @@ int main(int argc, const char * argv[]) {
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
-        model = glm::mat4();
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        
         //4.GL state
-        glDisable(GL_DEPTH_TEST);
         glStencilMask(0x00);
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         
-        //Draw outline
+        //Draw outline 1.
         outlineProgram.use();
         
         glm::mat4 modelOutline;
@@ -351,6 +345,28 @@ int main(int argc, const char * argv[]) {
         glUniformMatrix4fv(uniModelOutline, 1, GL_FALSE, glm::value_ptr(modelOutline));
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
+        //5.GL state
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        
+        //Draw Object cube 2.
+        program.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, cubeTexture);
+        glUniform1d(uniTexture, 0);
+        model = glm::mat4();
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        //6.GL state
+        glStencilMask(0x00);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        
+        //Draw outline 2.
+        outlineProgram.use();
         modelOutline = glm::mat4();
         modelOutline = glm::translate(modelOutline, glm::vec3(2.0f, 0.0f, 0.0f));
         modelOutline = glm::scale(modelOutline, glm::vec3(1.1));
