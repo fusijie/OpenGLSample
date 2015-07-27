@@ -152,6 +152,7 @@ int main(int argc, const char * argv[]) {
     
     //Shade operation
     Program program("advanced.vs", "advanced.fs");
+    Program outlineProgram("advanced.vs", "outline.fs");
     
     //Create data.
     GLfloat cubeVertices[] = {
@@ -255,11 +256,6 @@ int main(int argc, const char * argv[]) {
     GLuint cubeTexture = loadTexture("pattern4diffuseblack.jpg");
     GLuint floorTexture = loadTexture("metal.png");
     
-    //GLState
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-//    glDepthFunc(GL_ALWAYS);
-    
     while (!glfwWindowShouldClose(window)) {
         
         //Calculate deltatime of current frame
@@ -267,16 +263,19 @@ int main(int argc, const char * argv[]) {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         
+        //1.GL state
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilMask(0xFF);
+        
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         
-        //Draw Object cube.
-        ///Use program, bind vao.
+        //Use program
         program.use();
-        glBindVertexArray(vao[0]);
         
-        ///Setup mvp and uniform.
+        ///Get uniform location and setup mvp.
         glm::mat4 model;
         GLint uniModel = glGetUniformLocation(program.getProgram(), "model");
         
@@ -288,9 +287,35 @@ int main(int argc, const char * argv[]) {
         GLint uniProjection = glGetUniformLocation(program.getProgram(), "projection");
         glUniformMatrix4fv(uniProjection, 1, GL_FALSE, glm::value_ptr(projection));
         
-        glBindTexture(GL_TEXTURE_2D, cubeTexture);
-        glUniform1d(glGetUniformLocation(program.getProgram(), "texture1"), 0);
+        GLint uniTexture = glGetUniformLocation(program.getProgram(), "texture1");
         
+        //2.GL state
+        glStencilMask(0x00);
+        glStencilFunc(GL_NOTEQUAL, 1, 0XFF);
+        
+        //Draw floor.
+        glBindVertexArray(vao[1]);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, floorTexture);
+        glUniform1d(uniTexture, 0);
+        
+        model = glm::mat4();
+        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        //3.GL state
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        
+        //Draw Object cube.
+        glBindVertexArray(vao[0]);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, cubeTexture);
+        glUniform1d(uniTexture, 0);
+
         model = glm::mat4();
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -300,18 +325,45 @@ int main(int argc, const char * argv[]) {
         model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //Draw
-        glBindVertexArray(vao[1]);
-        glBindTexture(GL_TEXTURE_2D, floorTexture);
-        glUniform1d(glGetUniformLocation(program.getProgram(), "texture1"), 0);
-        model = glm::mat4();
-        glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 6);
         
+        //4.GL state
+        glDisable(GL_DEPTH_TEST);
+        glStencilMask(0x00);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        
+        //Draw outline
+        outlineProgram.use();
+        
+        glm::mat4 modelOutline;
+        GLint uniModelOutline = glGetUniformLocation(outlineProgram.getProgram(), "model");
+        
+        glm::mat4 viewOutline = camera.GetViewMatrix();
+        GLint uniViewOutline =glGetUniformLocation(outlineProgram.getProgram(), "view");
+        glUniformMatrix4fv(uniViewOutline, 1, GL_FALSE, glm::value_ptr(view));
+        
+        glm::mat4 projectionOutline = glm::perspective(camera.Zoom, (GLfloat)WIDTH/(GLfloat)HEIGHT, 0.1f, 100.0f);
+        GLint uniProjectionOutline = glGetUniformLocation(outlineProgram.getProgram(), "projection");
+        glUniformMatrix4fv(uniProjectionOutline, 1, GL_FALSE, glm::value_ptr(projection));
+        
+        modelOutline = glm::mat4();
+        modelOutline = glm::translate(modelOutline, glm::vec3(-1.0f, 0.0f, -1.0f));
+        modelOutline = glm::scale(modelOutline, glm::vec3(1.1));
+        glUniformMatrix4fv(uniModelOutline, 1, GL_FALSE, glm::value_ptr(modelOutline));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        modelOutline = glm::mat4();
+        modelOutline = glm::translate(modelOutline, glm::vec3(2.0f, 0.0f, 0.0f));
+        modelOutline = glm::scale(modelOutline, glm::vec3(1.1));
+        glUniformMatrix4fv(uniModelOutline, 1, GL_FALSE, glm::value_ptr(modelOutline));
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         //Reset.
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
+        
+        //5.GL state
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
         
         //Misc
         glfwSwapBuffers(window);
