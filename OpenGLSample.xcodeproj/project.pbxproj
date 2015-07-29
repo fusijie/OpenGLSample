@@ -27,6 +27,7 @@
 		85E29DE81B652C2A004FD08D /* pattern4diffuseblack.jpg in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */; };
 		85E29DE91B652C2A004FD08D /* advanced.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE31B652B39004FD08D /* advanced.fs */; };
 		85E29DEA1B652C2A004FD08D /* advanced.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE41B652B4C004FD08D /* advanced.vs */; };
+		85E29E261B6927A6004FD08D /* grass.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29E251B6927A0004FD08D /* grass.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +37,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				85E29E261B6927A6004FD08D /* grass.png in Copy Files */,
 				85E29DE71B652C2A004FD08D /* metal.png in Copy Files */,
 				85E29DE81B652C2A004FD08D /* pattern4diffuseblack.jpg in Copy Files */,
 				85E29DE91B652C2A004FD08D /* advanced.fs in Copy Files */,
@@ -125,6 +127,7 @@
 		85E29DE41B652B4C004FD08D /* advanced.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = advanced.vs; sourceTree = "<group>"; };
 		85E29DE51B652C11004FD08D /* metal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = metal.png; path = OpenGLSample/Resources/metal.png; sourceTree = "<group>"; };
 		85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = pattern4diffuseblack.jpg; path = OpenGLSample/Resources/pattern4diffuseblack.jpg; sourceTree = "<group>"; };
+		85E29E251B6927A0004FD08D /* grass.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = grass.png; path = OpenGLSample/Resources/grass.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,6 +214,7 @@
 		854D5C0F1B31287A006BF4B1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				85E29E251B6927A0004FD08D /* grass.png */,
 				85E29DE51B652C11004FD08D /* metal.png */,
 				85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */,
 				85681C751B52CBD5002B7B8C /* container_specular.png */,

@@ -95,21 +95,21 @@ void do_movement()
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-GLuint loadTexture(const char* path)
+GLuint loadTexture(const char* path, bool alpha = false)
 {
     //Generate texture ID and load texture data
     GLuint textureID;
     glGenTextures(1, &textureID);
     int width,height;
-    unsigned char* image = SOIL_load_image(path, &width, &height, 0, SOIL_LOAD_RGB);
+    unsigned char* image = SOIL_load_image(path, &width, &height, 0, alpha ? SOIL_LOAD_RGBA : SOIL_LOAD_RGB);
     // Assign texture to ID
     glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glTexImage2D(GL_TEXTURE_2D, 0, alpha ? GL_RGBA : GL_RGB, width, height, 0, alpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
     
     // Parameters
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, alpha ? GL_CLAMP_TO_EDGE : GL_REPEAT );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, alpha ? GL_CLAMP_TO_EDGE : GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -209,11 +209,22 @@ int main(int argc, const char * argv[]) {
         5.0f,  -0.5f, -5.0f,  2.0f, 2.0f
     };
     
+    GLfloat transparentVertices[] = {
+        // Positions         // Texture Coords (swapped y coordinates because texture is flipped upside down)
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+        
+        0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+        1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+        1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+    };
+    
     //Create a VAO and VBO.
-    GLuint vao[2];
-    glGenVertexArrays(2, vao);
-    GLuint vbo[2];
-    glGenBuffers(2, vbo);
+    GLuint vao[3];
+    glGenVertexArrays(3, vao);
+    GLuint vbo[3];
+    glGenBuffers(3, vbo);
     
     //Bind first VAO.
     glBindVertexArray(vao[0]);
@@ -251,9 +262,36 @@ int main(int argc, const char * argv[]) {
     //Bind default VAO.
     glBindVertexArray(0);
     
+    //Bind third VAO.
+    glBindVertexArray(vao[2]);
+    
+    //Create a VBO, and copy vertices data to it.
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+    
+    //Bind VBO to shader attribute.
+    GLint posAttrib_2 = glGetAttribLocation(program.getProgram(), "position");
+    glEnableVertexAttribArray(posAttrib_2);
+    glVertexAttribPointer(posAttrib_2, 3, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), 0);
+    GLint texCoordAttrib_2 = glGetAttribLocation(program.getProgram(), "texCoords");
+    glEnableVertexAttribArray(texCoordAttrib_2);
+    glVertexAttribPointer(texCoordAttrib_2, 2, GL_FLOAT, GL_FALSE, 5*sizeof(GL_FLOAT), (void*)(3*sizeof(GL_FLOAT)));
+
+    //Bind default VAO.
+    glBindVertexArray(0);
+    
     //Load textures
     GLuint cubeTexture = loadTexture("pattern4diffuseblack.jpg");
     GLuint floorTexture = loadTexture("metal.png");
+    GLuint grassTexture = loadTexture("grass.png", true);
+    
+    //Grass position.
+    std::vector<glm::vec3> vegetation;
+    vegetation.push_back(glm::vec3(-1.5f,  0.0f, -0.48f));
+    vegetation.push_back(glm::vec3( 1.5f,  0.0f,  0.51f));
+    vegetation.push_back(glm::vec3( 0.0f,  0.0f,  0.7f));
+    vegetation.push_back(glm::vec3(-0.3f,  0.0f, -2.3f));
+    vegetation.push_back(glm::vec3( 0.5f,  0.0f, -0.6f));
     
     //GLState
     glEnable(GL_DEPTH_TEST);
@@ -309,6 +347,17 @@ int main(int argc, const char * argv[]) {
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 6);
         
+        //Draw
+        glBindVertexArray(vao[2]);
+        glBindTexture(GL_TEXTURE_2D, grassTexture);
+        glUniform1d(glGetUniformLocation(program.getProgram(), "texture1"), 0);
+        for (GLuint i = 0 ; i < vegetation.size(); i++) {
+            model = glm::mat4();
+            model = glm::translate(model, vegetation[i]);
+            glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
+        
         //Reset.
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindVertexArray(0);
@@ -319,8 +368,12 @@ int main(int argc, const char * argv[]) {
         do_movement();
     }
     
-    glDeleteBuffers(2, vbo);
-    glDeleteVertexArrays(2, vao);
+    glDeleteBuffers(3, vbo);
+    glDeleteVertexArrays(3, vao);
+    
+    glDeleteTextures(1, &floorTexture);
+    glDeleteTextures(1, &cubeTexture);
+    glDeleteTextures(1, &grassTexture);
     
     glfwDestroyWindow(window);
     glfwTerminate();

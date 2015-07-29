@@ -7,5 +7,9 @@ out vec4 finalColor;
 uniform sampler2D texture1;
 
 void main() {
-    finalColor = texture(texture1, TexCoords);
+    vec4 texColor = texture(texture1, TexCoords);
+    if (texColor.a < 0.1) {
+        discard;
+    }
+    finalColor = texColor;
 }
