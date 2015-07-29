@@ -8,6 +8,7 @@
 
 #define GLFW_INCLUDE_GLCOREARB
 #include <iostream>
+#include <map>
 
 //GLFW Includes
 #include "glfw3.h"
@@ -283,20 +284,22 @@ int main(int argc, const char * argv[]) {
     //Load textures
     GLuint cubeTexture = loadTexture("pattern4diffuseblack.jpg");
     GLuint floorTexture = loadTexture("metal.png");
-    GLuint grassTexture = loadTexture("grass.png", true);
+    GLuint windowTexture = loadTexture("blending_transparent_window.png", true);
     
     //Grass position.
-    std::vector<glm::vec3> vegetation;
-    vegetation.push_back(glm::vec3(-1.5f,  0.0f, -0.48f));
-    vegetation.push_back(glm::vec3( 1.5f,  0.0f,  0.51f));
-    vegetation.push_back(glm::vec3( 0.0f,  0.0f,  0.7f));
-    vegetation.push_back(glm::vec3(-0.3f,  0.0f, -2.3f));
-    vegetation.push_back(glm::vec3( 0.5f,  0.0f, -0.6f));
+    std::vector<glm::vec3> windows;
+    windows.push_back(glm::vec3(-1.5f,  0.0f, -0.48f));
+    windows.push_back(glm::vec3( 1.5f,  0.0f,  0.51f));
+    windows.push_back(glm::vec3( 0.0f,  0.0f,  0.7f));
+    windows.push_back(glm::vec3(-0.3f,  0.0f, -2.3f));
+    windows.push_back(glm::vec3( 0.5f,  0.0f, -0.6f));
     
     //GLState
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 //    glDepthFunc(GL_ALWAYS);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -304,6 +307,13 @@ int main(int argc, const char * argv[]) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        
+        //Sort transparent objects.
+        std::map<GLfloat, glm::vec3> sortedVector;
+        for (GLuint i = 0 ; i < windows.size(); i++) {
+            GLfloat distance = glm::length(camera.Position - windows[i]);
+            sortedVector[distance] = windows[i];
+        }
         
         //Clear
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -349,11 +359,11 @@ int main(int argc, const char * argv[]) {
         
         //Draw
         glBindVertexArray(vao[2]);
-        glBindTexture(GL_TEXTURE_2D, grassTexture);
+        glBindTexture(GL_TEXTURE_2D, windowTexture);
         glUniform1d(glGetUniformLocation(program.getProgram(), "texture1"), 0);
-        for (GLuint i = 0 ; i < vegetation.size(); i++) {
+        for (std::map<GLfloat, glm::vec3>::reverse_iterator it = sortedVector.rbegin(); it != sortedVector.rend(); ++it) {
             model = glm::mat4();
-            model = glm::translate(model, vegetation[i]);
+            model = glm::translate(model, it->second);
             glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
@@ -373,7 +383,7 @@ int main(int argc, const char * argv[]) {
     
     glDeleteTextures(1, &floorTexture);
     glDeleteTextures(1, &cubeTexture);
-    glDeleteTextures(1, &grassTexture);
+    glDeleteTextures(1, &windowTexture);
     
     glfwDestroyWindow(window);
     glfwTerminate();
