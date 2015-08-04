@@ -260,6 +260,11 @@ int main(int argc, const char * argv[]) {
     glDepthFunc(GL_LESS);
 //    glDepthFunc(GL_ALWAYS);
     
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+//    glFrontFace(GL_CW);
+    
     while (!glfwWindowShouldClose(window)) {
         
         //Calculate deltatime of current frame
