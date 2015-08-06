@@ -95,6 +95,13 @@ void do_movement()
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
+bool isRetinaMonitor()
+{
+    GLint rect[4];
+    glGetIntegerv(GL_VIEWPORT, rect);
+    return rect[2] == WIDTH * 2 && rect[3] == HEIGHT * 2;
+}
+
 GLuint loadTexture(const char* path)
 {
     //Generate texture ID and load texture data
@@ -149,6 +156,10 @@ int main(int argc, const char * argv[]) {
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    
+    //RetinaMonitor
+    float retinaFactor = isRetinaMonitor() ? 2.0 : 1.0;
+    
     
     //Shade operation
     Program program("advanced.vs", "advanced.fs");
@@ -275,7 +286,7 @@ int main(int argc, const char * argv[]) {
     GLuint texColorBuffer;
     glGenTextures(1, &texColorBuffer);
     glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH * retinaFactor, HEIGHT * retinaFactor, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -284,7 +295,7 @@ int main(int argc, const char * argv[]) {
     GLuint rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH * retinaFactor, HEIGHT * retinaFactor);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
     
@@ -345,7 +356,7 @@ int main(int argc, const char * argv[]) {
         model = glm::mat4();
         glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
         glDrawArrays(GL_TRIANGLES, 0, 6);
-        
+                
         //Bind framebuffer.
         glDisable(GL_DEPTH_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
