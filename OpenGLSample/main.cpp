@@ -15,6 +15,8 @@
 #include "GLM/gtc/type_ptr.hpp"
 
 static bool isDrawOnOriginFrameBuffer = false;
+const int WIDTH = 800;
+const int HEIGHT = 600;
 
 void error_callback(int error, const char* description)
 {
@@ -27,6 +29,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         glfwSetWindowShouldClose(window, GL_TRUE);
     else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
         isDrawOnOriginFrameBuffer = !isDrawOnOriginFrameBuffer;
+}
+
+bool isRetinaMonitor()
+{
+    GLint rect[4];
+    glGetIntegerv(GL_VIEWPORT, rect);
+    return rect[2] == WIDTH * 2 && rect[3] == HEIGHT * 2;
 }
 
 void checkShader(GLint shader)
@@ -253,7 +262,7 @@ int main(int argc, const char * argv[]) {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     
-    window = glfwCreateWindow(800, 600, "HelloWorld", nullptr, nullptr);
+    window = glfwCreateWindow(WIDTH, HEIGHT, "HelloWorld", nullptr, nullptr);
     
     if(!window)
     {
@@ -264,6 +273,8 @@ int main(int argc, const char * argv[]) {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     glfwSetKeyCallback(window, key_callback);
+    
+    float retinaFactor = isRetinaMonitor() ? 2.0f : 1.0f;
     
     //Create vao.
     GLuint vaoCube, vaoQuad;
@@ -314,7 +325,7 @@ int main(int argc, const char * argv[]) {
     GLuint texColorbuffer;
     glGenTextures(1, &texColorbuffer);
     glBindTexture(GL_TEXTURE_2D, texColorbuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH * retinaFactor, HEIGHT * retinaFactor, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorbuffer, 0);
@@ -323,7 +334,7 @@ int main(int argc, const char * argv[]) {
     GLuint rboDepthStencil;
     glGenRenderbuffers(1, &rboDepthStencil);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH * retinaFactor, HEIGHT * retinaFactor);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
     
     //MVP
@@ -334,7 +345,7 @@ int main(int argc, const char * argv[]) {
     GLint uniView = glGetUniformLocation(sceneShaderProgram, "view");
     glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
     
-    glm::mat4 project = glm::perspective(45.0f, 800.0f/600.0f, 1.0f, 10.0f);
+    glm::mat4 project = glm::perspective(45.0f, (float)WIDTH/HEIGHT, 1.0f, 10.0f);
     GLint uniProject = glGetUniformLocation(sceneShaderProgram, "project");
     glUniformMatrix4fv(uniProject, 1, GL_FALSE, glm::value_ptr(project));
     
