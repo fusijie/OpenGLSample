@@ -1,0 +1,10 @@
+diff a/OpenGLSample/main.cpp b/OpenGLSample/main.cpp	(rejected hunks)
+@@ -316,7 +327,7 @@ int main(int argc, const char * argv[]) {
+     GLuint rboDepthStencil;
+     glGenRenderbuffers(1, &rboDepthStencil);
+     glBindRenderbuffer(GL_RENDERBUFFER, rboDepthStencil);
+-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);
++    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH * retinaFactor, HEIGHT * retinaFactor);
+     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepthStencil);
+     
+     //MVP
