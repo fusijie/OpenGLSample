@@ -235,12 +235,23 @@ int main(int argc, const char * argv[]) {
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        // Draw SkyBox
-        glDepthMask(GL_FALSE);
-        skyboxProgram.use();
-        glm::mat4 view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(skyboxProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+        // Draw the loaded model
+        nanosuitProgram.use();
+        glm::mat4  view = camera.GetViewMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
         glm::mat4 projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
+        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glm::mat4 model;
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
+        nanosuitModel.draw(nanosuitProgram.getProgram());
+        
+        // Draw SkyBox
+        glDepthFunc(GL_LEQUAL);
+        skyboxProgram.use();
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(skyboxProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(skyboxProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glBindVertexArray(vao);
         glActiveTexture(GL_TEXTURE0);
@@ -248,18 +259,7 @@ int main(int argc, const char * argv[]) {
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
-        glDepthMask(GL_TRUE);
-        
-        // Draw the loaded model
-        nanosuitProgram.use();
-        view = camera.GetViewMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-        nanosuitModel.draw(nanosuitProgram.getProgram());
+        glDepthFunc(GL_LESS);
         
         //Misc
         glfwSwapBuffers(window);
