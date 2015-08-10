@@ -1,12 +1,16 @@
 #version 150 core
 
-in vec2 TexCoords;
+in vec3 Normal;
+in vec3 Position;
 
 out vec4 color;
 
-uniform sampler2D texture_diffuse1;
+uniform vec3 cameraPos;
+uniform samplerCube skybox;
 
 void main()
 {
-    color = vec4(texture(texture_diffuse1, TexCoords));
+    vec3 I = normalize(Position - cameraPos);
+    vec3 R = reflect(I, normalize(Normal));
+    color = vec4(texture(skybox, R));
 }
