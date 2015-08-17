@@ -10,6 +10,9 @@
 		8504D6FC1B77BB700089DA05 /* skybox in Copy Files */ = {isa = PBXBuildFile; fileRef = 8504D6FB1B77BB650089DA05 /* skybox */; };
 		8504D6FD1B77BB770089DA05 /* skybox.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 8504D6F91B77BB000089DA05 /* skybox.fs */; };
 		8504D6FE1B77BB770089DA05 /* skybox.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 8504D6FA1B77BB0F0089DA05 /* skybox.vs */; };
+		854114C21B823DFC00181A11 /* nanosuit_geometry.gs in Copy Files */ = {isa = PBXBuildFile; fileRef = 854114C11B823DEB00181A11 /* nanosuit_geometry.gs */; };
+		854114C51B82411C00181A11 /* nanosuit_geometry.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 854114C31B823F6C00181A11 /* nanosuit_geometry.vs */; };
+		854114C61B82411C00181A11 /* nanosuit_geometry.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 854114C41B823F9400181A11 /* nanosuit_geometry.fs */; };
 		854D5BF51B311017006BF4B1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 854D5BF41B311017006BF4B1 /* main.cpp */; };
 		854D5BFC1B3110D8006BF4B1 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5BFB1B3110D8006BF4B1 /* OpenGL.framework */; };
 		854D5BFE1B3110DF006BF4B1 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5BFD1B3110DF006BF4B1 /* Cocoa.framework */; };
@@ -38,6 +41,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				854114C51B82411C00181A11 /* nanosuit_geometry.vs in Copy Files */,
+				854114C61B82411C00181A11 /* nanosuit_geometry.fs in Copy Files */,
+				854114C21B823DFC00181A11 /* nanosuit_geometry.gs in Copy Files */,
 				8504D6FD1B77BB770089DA05 /* skybox.fs in Copy Files */,
 				8504D6FE1B77BB770089DA05 /* skybox.vs in Copy Files */,
 				8504D6FC1B77BB700089DA05 /* skybox in Copy Files */,
@@ -62,6 +68,9 @@
 		8504D6F91B77BB000089DA05 /* skybox.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = skybox.fs; sourceTree = "<group>"; };
 		8504D6FA1B77BB0F0089DA05 /* skybox.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = skybox.vs; sourceTree = "<group>"; };
 		8504D6FB1B77BB650089DA05 /* skybox */ = {isa = PBXFileReference; lastKnownFileType = folder; name = skybox; path = OpenGLSample/Resources/skybox; sourceTree = "<group>"; };
+		854114C11B823DEB00181A11 /* nanosuit_geometry.gs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = nanosuit_geometry.gs; sourceTree = "<group>"; };
+		854114C31B823F6C00181A11 /* nanosuit_geometry.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = nanosuit_geometry.vs; sourceTree = "<group>"; };
+		854114C41B823F9400181A11 /* nanosuit_geometry.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = nanosuit_geometry.fs; sourceTree = "<group>"; };
 		854D5BF11B311017006BF4B1 /* OpenGLSample */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OpenGLSample; sourceTree = BUILT_PRODUCTS_DIR; };
 		854D5BF41B311017006BF4B1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		854D5BFB1B3110D8006BF4B1 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -307,6 +316,9 @@
 				8551ED031B56C13900A10476 /* nanosuit.fs */,
 				8504D6F91B77BB000089DA05 /* skybox.fs */,
 				8504D6FA1B77BB0F0089DA05 /* skybox.vs */,
+				854114C11B823DEB00181A11 /* nanosuit_geometry.gs */,
+				854114C31B823F6C00181A11 /* nanosuit_geometry.vs */,
+				854114C41B823F9400181A11 /* nanosuit_geometry.fs */,
 			);
 			name = Shaders;
 			path = OpenGLSample/Shaders;

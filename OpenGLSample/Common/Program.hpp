@@ -16,7 +16,7 @@
 
 class Program{
 public:
-    Program(const char* vertexName, const char* fragmentName){
+    Program(const char* vertexName, const char* fragmentName, const char* geometryName = nullptr){
         // 1. Retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -48,7 +48,7 @@ public:
         const GLchar* vShaderCode = vertexCode.c_str();
         const GLchar * fShaderCode = fragmentCode.c_str();
         // 2. Compile shaders
-        GLuint vertex, fragment;
+        GLuint vertex, fragment, geometry = 0;
         GLint success;
         GLchar infoLog[512];
         // Vertex Shader
@@ -78,6 +78,36 @@ public:
         glAttachShader(this->_program, vertex);
         glAttachShader(this->_program, fragment);
         
+        //Geometry Shader
+        if (geometryName) {
+            std::string geometryCode;
+            std::ifstream gShaderFile;
+            gShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+            try {
+                gShaderFile.open(geometryName);
+                std::stringstream gShaderStream;
+                gShaderStream << gShaderFile.rdbuf();
+                gShaderFile.close();
+                geometryCode = gShaderStream.str();
+            }
+            catch (std::ifstream::failure e)
+            {
+                std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            }
+            const GLchar* gShaderCode = geometryCode.c_str();
+            geometry = glCreateShader(GL_GEOMETRY_SHADER);
+            glShaderSource(geometry, 1, &gShaderCode, NULL);
+            glCompileShader(geometry);
+            glGetShaderiv(geometry, GL_COMPILE_STATUS, &success);
+            if (!success)
+            {
+                glGetShaderInfoLog(geometry, 512, NULL, infoLog);
+                std::cout << "ERROR::SHADER::GEOMETRY::COMPILATION_FAILED\n" << infoLog << std::endl;
+            }
+            glAttachShader(this->_program, geometry);
+
+        }
+        
         // Bind Predefined VertexAttribs
         bindPredefinedVertexAttribs();
         
@@ -93,6 +123,9 @@ public:
         // Delete the shaders as they're linked into our program now and no longer necessery
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+        if (geometryName) {
+            glDeleteShader(geometry);
+        }
         
         logVertexAttribsAndUniforms();
     }

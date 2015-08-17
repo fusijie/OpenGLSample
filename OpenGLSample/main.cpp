@@ -156,6 +156,7 @@ int main(int argc, const char * argv[]) {
     
     //Shade & Model
     Program nanosuitProgram("nanosuit.vs", "nanosuit.fs");
+    Program nanosuitGeometryProgram("nanosuit_geometry.vs", "nanosuit_geometry.fs", "nanosuit_geometry.gs");
     Model nanosuitModel("nanosuit/nanosuit.obj");
     
     //SkyBox
@@ -247,6 +248,13 @@ int main(int argc, const char * argv[]) {
         glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "cameraPos"), camera.Position.x, camera.Position.y, camera.Position.z);
         nanosuitModel.draw(nanosuitProgram.getProgram());
+        
+        // Draw the model fur
+        nanosuitGeometryProgram.use();
+        glUniformMatrix4fv(glGetUniformLocation(nanosuitGeometryProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(nanosuitGeometryProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(nanosuitGeometryProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
+        nanosuitModel.draw(nanosuitGeometryProgram.getProgram());
         
         // Draw SkyBox
         glDepthFunc(GL_LEQUAL);
