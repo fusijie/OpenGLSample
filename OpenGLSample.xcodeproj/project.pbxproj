@@ -14,7 +14,8 @@
 		854D5C021B3110ED006BF4B1 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C011B3110ED006BF4B1 /* IOKit.framework */; };
 		854D5C041B31112A006BF4B1 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C031B31112A006BF4B1 /* libglfw3.a */; };
 		854D5C0E1B312745006BF4B1 /* libSOIL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 854D5C0D1B312745006BF4B1 /* libSOIL.a */; };
-		8551EB721B565B3B00A10476 /* libassimp.3.1.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8551EB711B565B3B00A10476 /* libassimp.3.1.1.dylib */; };
+		85E22D6A1B8378130042E516 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 85E22D691B8378130042E516 /* libz.dylib */; };
+		85E22D6C1B83781D0042E516 /* libassimp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 85E22D6B1B83781D0042E516 /* libassimp.a */; };
 		85E29DE71B652C2A004FD08D /* metal.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE51B652C11004FD08D /* metal.png */; };
 		85E29DE81B652C2A004FD08D /* pattern4diffuseblack.jpg in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE61B652C11004FD08D /* pattern4diffuseblack.jpg */; };
 		85E29DE91B652C2A004FD08D /* advanced.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E29DE31B652B39004FD08D /* advanced.fs */; };
@@ -52,7 +53,6 @@
 		854D5C081B311158006BF4B1 /* glfw3native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glfw3native.h; path = OpenGLSample/GLFW3/glfw3native.h; sourceTree = "<group>"; };
 		854D5C0C1B312738006BF4B1 /* SOIL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SOIL.h; path = OpenGLSample/SOIL/SOIL.h; sourceTree = "<group>"; };
 		854D5C0D1B312745006BF4B1 /* libSOIL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSOIL.a; path = OpenGLSample/SOIL/libSOIL.a; sourceTree = "<group>"; };
-		8551EB711B565B3B00A10476 /* libassimp.3.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.3.1.1.dylib; path = OpenGLSample/Assimp/libassimp.3.1.1.dylib; sourceTree = "<group>"; };
 		8551EB771B565D9000A10476 /* ai_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai_assert.h; sourceTree = "<group>"; };
 		8551EB781B565D9000A10476 /* anim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = anim.h; sourceTree = "<group>"; };
 		8551EB791B565D9000A10476 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
@@ -99,6 +99,8 @@
 		8551EBB81B56A4CC00A10476 /* Camera.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Camera.hpp; sourceTree = "<group>"; };
 		8551EBBA1B56A4CC00A10476 /* Program.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Program.hpp; sourceTree = "<group>"; };
 		8551ECC31B56A5CD00A10476 /* GLM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GLM; path = OpenGLSample/GLM; sourceTree = "<group>"; };
+		85E22D691B8378130042E516 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		85E22D6B1B83781D0042E516 /* libassimp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libassimp.a; path = OpenGLSample/Assimp/libassimp.a; sourceTree = "<group>"; };
 		85E29DE31B652B39004FD08D /* advanced.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = advanced.fs; sourceTree = "<group>"; };
 		85E29DE41B652B4C004FD08D /* advanced.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = advanced.vs; sourceTree = "<group>"; };
 		85E29DE51B652C11004FD08D /* metal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = metal.png; path = OpenGLSample/Resources/metal.png; sourceTree = "<group>"; };
@@ -111,8 +113,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85E22D6C1B83781D0042E516 /* libassimp.a in Frameworks */,
+				85E22D6A1B8378130042E516 /* libz.dylib in Frameworks */,
 				854D5C0E1B312745006BF4B1 /* libSOIL.a in Frameworks */,
-				8551EB721B565B3B00A10476 /* libassimp.3.1.1.dylib in Frameworks */,
 				854D5C041B31112A006BF4B1 /* libglfw3.a in Frameworks */,
 				854D5C021B3110ED006BF4B1 /* IOKit.framework in Frameworks */,
 				854D5C001B3110E6006BF4B1 /* CoreVideo.framework in Frameworks */,
@@ -159,7 +162,8 @@
 		854D5C051B311130006BF4B1 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
-				8551EB711B565B3B00A10476 /* libassimp.3.1.1.dylib */,
+				85E22D6B1B83781D0042E516 /* libassimp.a */,
+				85E22D691B8378130042E516 /* libz.dylib */,
 				854D5C0D1B312745006BF4B1 /* libSOIL.a */,
 				854D5C031B31112A006BF4B1 /* libglfw3.a */,
 				854D5C011B3110ED006BF4B1 /* IOKit.framework */,
