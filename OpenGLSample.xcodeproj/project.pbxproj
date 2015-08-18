@@ -69,7 +69,6 @@
 		854D5C0D1B312745006BF4B1 /* libSOIL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSOIL.a; path = OpenGLSample/SOIL/libSOIL.a; sourceTree = "<group>"; };
 		854D5C101B31288A006BF4B1 /* kitten.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = kitten.png; path = OpenGLSample/Resources/kitten.png; sourceTree = "<group>"; };
 		854D5C141B313F75006BF4B1 /* puppy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = puppy.png; path = OpenGLSample/Resources/puppy.png; sourceTree = "<group>"; };
-		8551EB711B565B3B00A10476 /* libassimp.3.1.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libassimp.3.1.1.dylib; path = OpenGLSample/Assimp/libassimp.3.1.1.dylib; sourceTree = "<group>"; };
 		8551EB771B565D9000A10476 /* ai_assert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai_assert.h; sourceTree = "<group>"; };
 		8551EB781B565D9000A10476 /* anim.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = anim.h; sourceTree = "<group>"; };
 		8551EB791B565D9000A10476 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
@@ -152,8 +151,6 @@
 		854D5BE81B311017006BF4B1 = {
 			isa = PBXGroup;
 			children = (
-				85E22D771B837A0C0042E516 /* libz.dylib */,
-				85E22D751B837A050042E516 /* libassimp.a */,
 				8551ECC31B56A5CD00A10476 /* GLM */,
 				8551EB751B565D9000A10476 /* Assimp */,
 				854D5C0F1B31287A006BF4B1 /* Resources */,
@@ -186,7 +183,8 @@
 		854D5C051B311130006BF4B1 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
-				8551EB711B565B3B00A10476 /* libassimp.3.1.1.dylib */,
+				85E22D771B837A0C0042E516 /* libz.dylib */,
+				85E22D751B837A050042E516 /* libassimp.a */,
 				854D5C0D1B312745006BF4B1 /* libSOIL.a */,
 				854D5C031B31112A006BF4B1 /* libglfw3.a */,
 				854D5C011B3110ED006BF4B1 /* IOKit.framework */,
