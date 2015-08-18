@@ -181,10 +181,11 @@ int main(int argc, const char * argv[]) {
         }
     }
     
-    GLuint vao, vbo;
+    GLuint vao, vbo, vboInstance;
     glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
+    
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
     GLint attribPos = glGetAttribLocation(program.getProgram(), "position");
@@ -193,6 +194,15 @@ int main(int argc, const char * argv[]) {
     GLint attribColor = glGetAttribLocation(program.getProgram(), "color");
     glEnableVertexAttribArray(attribColor);
     glVertexAttribPointer(attribColor, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
+    
+    glGenBuffers(1, &vboInstance);
+    glBindBuffer(GL_ARRAY_BUFFER, vboInstance);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+    GLint attribOffset = glGetAttribLocation(program.getProgram(), "offset");
+    glEnableVertexAttribArray(attribOffset);
+    glVertexAttribPointer(attribOffset, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), (GLvoid*)0);
+    
+    glVertexAttribDivisor(attribOffset, 1);
     glBindVertexArray(0);
     
     
@@ -208,18 +218,9 @@ int main(int argc, const char * argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         program.use();
-        for (GLuint i = 0; i < 100; i++) {
-            stringstream ss;
-            string index;
-            ss << i;
-            index = ss.str();
-            GLint uniOffset = glGetUniformLocation(program.getProgram(), ("offsets[" + index + "]").c_str());
-            glUniform2f(uniOffset, translations[i].x, translations[i].y);
-        }
         glBindVertexArray(vao);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         glBindVertexArray(0);
-        
         
         //Misc
         glfwSwapBuffers(window);
@@ -229,6 +230,7 @@ int main(int argc, const char * argv[]) {
     
     glDeleteBuffers(1, &vao);
     glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &vboInstance);
     
     glfwDestroyWindow(window);
     glfwTerminate();
