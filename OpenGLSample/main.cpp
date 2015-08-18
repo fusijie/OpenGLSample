@@ -220,9 +220,9 @@ int main(int argc, const char * argv[]) {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    GLint UniPos = glGetAttribLocation(skyboxProgram.getProgram(), "position");
-    glEnableVertexAttribArray(UniPos);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
+    GLint attriPos = glGetAttribLocation(skyboxProgram.getProgram(), "position");
+    glEnableVertexAttribArray(attriPos);
+    glVertexAttribPointer(attriPos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
     glBindVertexArray(0);
     
     while (!glfwWindowShouldClose(window)) {
@@ -275,6 +275,8 @@ int main(int argc, const char * argv[]) {
         glfwPollEvents();
         do_movement();
     }
+    glDeleteBuffers(1, &vao);
+    glDeleteBuffers(1, &vbo);
     
     glfwDestroyWindow(window);
     glfwTerminate();
