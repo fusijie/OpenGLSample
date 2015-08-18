@@ -154,76 +154,47 @@ int main(int argc, const char * argv[]) {
     //GLState
     glEnable(GL_DEPTH_TEST);
     
-    //Shade & Model
-    Program nanosuitProgram("nanosuit.vs", "nanosuit.fs");
-    Program nanosuitGeometryProgram("nanosuit_geometry.vs", "nanosuit_geometry.fs", "nanosuit_geometry.gs");
-    Model nanosuitModel("nanosuit/nanosuit.obj");
+    Program program("instancing.vs", "instancing.fs");
     
-    //SkyBox
-    Program skyboxProgram("skybox.vs", "skybox.fs");
-    vector<const GLchar*> faces;
-    faces.push_back("skybox/right.jpg");
-    faces.push_back("skybox/left.jpg");
-    faces.push_back("skybox/top.jpg");
-    faces.push_back("skybox/bottom.jpg");
-    faces.push_back("skybox/back.jpg");
-    faces.push_back("skybox/front.jpg");
-    GLuint cubemapTexture = loadCubeMap(faces);
-    
-    GLfloat skyboxVertices[] = {
-        // Positions
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
+    GLfloat quadVertices[] = {
+        // Positions     // Colors
+        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+        -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
         
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-        
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-        
-        -1.0f,  1.0f, -1.0f,
-        1.0f,  1.0f, -1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
-        
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-        1.0f, -1.0f,  1.0f
+        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+        0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+        0.05f,  0.05f,  0.0f, 1.0f, 1.0f
     };
+    
+    glm::vec2 translations[100];
+    int index = 0;
+    GLfloat offset = 0.1f;
+    for(GLint y = -10; y < 10; y += 2)
+    {
+        for(GLint x = -10; x < 10; x += 2)
+        {
+            glm::vec2 translation;
+            translation.x = (GLfloat)x / 10.0f + offset;
+            translation.y = (GLfloat)y / 10.0f + offset;
+            translations[index++] = translation;
+        }
+    }
+    
     GLuint vao, vbo;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-    GLint UniPos = glGetAttribLocation(skyboxProgram.getProgram(), "position");
-    glEnableVertexAttribArray(UniPos);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    GLint attribPos = glGetAttribLocation(program.getProgram(), "position");
+    glEnableVertexAttribArray(attribPos);
+    glVertexAttribPointer(attribPos, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)0);
+    GLint attribColor = glGetAttribLocation(program.getProgram(), "color");
+    glEnableVertexAttribArray(attribColor);
+    glVertexAttribPointer(attribColor, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
     glBindVertexArray(0);
+    
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -236,45 +207,28 @@ int main(int argc, const char * argv[]) {
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        // Draw the loaded model
-        nanosuitProgram.use();
-        glm::mat4  view = camera.GetViewMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glm::mat4 projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniform3f(glGetUniformLocation(nanosuitProgram.getProgram(), "cameraPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-        nanosuitModel.draw(nanosuitProgram.getProgram());
-        
-        // Draw the model fur
-        nanosuitGeometryProgram.use();
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitGeometryProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitGeometryProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(nanosuitGeometryProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
-        nanosuitModel.draw(nanosuitGeometryProgram.getProgram());
-        
-        // Draw SkyBox
-        glDepthFunc(GL_LEQUAL);
-        skyboxProgram.use();
-        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(skyboxProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(skyboxProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        program.use();
+        for (GLuint i = 0; i < 100; i++) {
+            stringstream ss;
+            string index;
+            ss << i;
+            index = ss.str();
+            GLint uniOffset = glGetUniformLocation(program.getProgram(), ("offsets[" + index + "]").c_str());
+            glUniform2f(uniOffset, translations[i].x, translations[i].y);
+        }
         glBindVertexArray(vao);
-        glActiveTexture(GL_TEXTURE0);
-        glUniform1i(glGetUniformLocation(skyboxProgram.getProgram(), "skybox"), 0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
         glBindVertexArray(0);
-        glDepthFunc(GL_LESS);
+        
         
         //Misc
         glfwSwapBuffers(window);
         glfwPollEvents();
         do_movement();
     }
+    
+    glDeleteBuffers(1, &vao);
+    glDeleteBuffers(1, &vbo);
     
     glfwDestroyWindow(window);
     glfwTerminate();

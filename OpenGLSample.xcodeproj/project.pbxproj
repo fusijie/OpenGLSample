@@ -33,6 +33,8 @@
 		8551ED301B577B7200A10476 /* nanosuit in Copy Files */ = {isa = PBXBuildFile; fileRef = 8551ED2F1B577B6A00A10476 /* nanosuit */; };
 		85681C741B52C0D8002B7B8C /* container.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85681C731B52C0C8002B7B8C /* container.png */; };
 		85681C761B52CBDC002B7B8C /* container_specular.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85681C751B52CBD5002B7B8C /* container_specular.png */; };
+		85E22D8F1B838FBE0042E516 /* instancing.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22D8D1B838FA20042E516 /* instancing.vs */; };
+		85E22D901B838FBE0042E516 /* instancing.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22D8E1B838FAE0042E516 /* instancing.fs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,6 +44,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				85E22D8F1B838FBE0042E516 /* instancing.vs in Copy Files */,
+				85E22D901B838FBE0042E516 /* instancing.fs in Copy Files */,
 				854114C51B82411C00181A11 /* nanosuit_geometry.vs in Copy Files */,
 				854114C61B82411C00181A11 /* nanosuit_geometry.fs in Copy Files */,
 				854114C21B823DFC00181A11 /* nanosuit_geometry.gs in Copy Files */,
@@ -144,6 +148,8 @@
 		8551ED2F1B577B6A00A10476 /* nanosuit */ = {isa = PBXFileReference; lastKnownFileType = folder; name = nanosuit; path = OpenGLSample/Resources/nanosuit; sourceTree = "<group>"; };
 		85681C731B52C0C8002B7B8C /* container.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container.png; path = OpenGLSample/Resources/container.png; sourceTree = "<group>"; };
 		85681C751B52CBD5002B7B8C /* container_specular.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container_specular.png; path = OpenGLSample/Resources/container_specular.png; sourceTree = "<group>"; };
+		85E22D8D1B838FA20042E516 /* instancing.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = instancing.vs; sourceTree = "<group>"; };
+		85E22D8E1B838FAE0042E516 /* instancing.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = instancing.fs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -323,6 +329,8 @@
 				854114C11B823DEB00181A11 /* nanosuit_geometry.gs */,
 				854114C31B823F6C00181A11 /* nanosuit_geometry.vs */,
 				854114C41B823F9400181A11 /* nanosuit_geometry.fs */,
+				85E22D8D1B838FA20042E516 /* instancing.vs */,
+				85E22D8E1B838FAE0042E516 /* instancing.fs */,
 			);
 			name = Shaders;
 			path = OpenGLSample/Shaders;
