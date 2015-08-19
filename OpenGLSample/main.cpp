@@ -154,56 +154,34 @@ int main(int argc, const char * argv[]) {
     //GLState
     glEnable(GL_DEPTH_TEST);
     
-    Program program("instancing.vs", "instancing.fs");
+    Program planetProgram("planet.vs", "planet.fs");
+    Program rockProgram("rock.vs", "rock.fs");
     
-    GLfloat quadVertices[] = {
-        // Positions     // Colors
-        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-        0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-        -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
-        
-        -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-        0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-        0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-    };
+    Model planetModel("planet/planet.obj");
+    Model rockModel("rock/rock.obj");
     
-    glm::vec2 translations[100];
-    int index = 0;
-    GLfloat offset = 0.1f;
-    for(GLint y = -10; y < 10; y += 2)
-    {
-        for(GLint x = -10; x < 10; x += 2)
-        {
-            glm::vec2 translation;
-            translation.x = (GLfloat)x / 10.0f + offset;
-            translation.y = (GLfloat)y / 10.0f + offset;
-            translations[index++] = translation;
-        }
+    GLuint amount = 10000;
+    glm::mat4* modelMatrices;
+    modelMatrices = new glm::mat4[amount];
+    srand(glfwGetTime());
+    GLfloat radius = 10.0f;
+    GLfloat offset = 2.5f;
+    for (GLuint i = 0; i < amount; i++) {
+        glm::mat4 model;
+        GLfloat angle = (GLfloat)i / (GLfloat)amount * 360.0f;
+        GLfloat displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+        GLfloat x = sin(angle) * radius + displacement;
+        displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+        GLfloat y = displacement * 0.4f; // y value has smaller displacement
+        displacement = (rand() % (GLint)(2 * offset * 100)) / 100.0f - offset;
+        GLfloat z = cos(angle) * radius + displacement;
+        model = glm::translate(model, glm::vec3(x, y, z));
+        GLfloat scale = (rand() % 20) / 100.0f + 0.05;
+        model = glm::scale(model, glm::vec3(scale));
+        GLfloat rotAngle = (rand() % 360);
+        model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+        modelMatrices[i] = model;
     }
-    
-    GLuint vao, vbo, vboInstance;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-    GLint attribPos = glGetAttribLocation(program.getProgram(), "position");
-    glEnableVertexAttribArray(attribPos);
-    glVertexAttribPointer(attribPos, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)0);
-    GLint attribColor = glGetAttribLocation(program.getProgram(), "color");
-    glEnableVertexAttribArray(attribColor);
-    glVertexAttribPointer(attribColor, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GL_FLOAT), (GLvoid*)(3 * sizeof(GL_FLOAT)));
-    
-    glGenBuffers(1, &vboInstance);
-    glBindBuffer(GL_ARRAY_BUFFER, vboInstance);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
-    GLint attribOffset = glGetAttribLocation(program.getProgram(), "offset");
-    glEnableVertexAttribArray(attribOffset);
-    glVertexAttribPointer(attribOffset, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GL_FLOAT), (GLvoid*)0);
-    
-    glVertexAttribDivisor(attribOffset, 1);
-    glBindVertexArray(0);
     
     
     while (!glfwWindowShouldClose(window)) {
@@ -212,25 +190,36 @@ int main(int argc, const char * argv[]) {
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        cout<< "FPS:" << 1.0f/deltaTime << endl;
         
         //Clear
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        program.use();
-        glBindVertexArray(vao);
-        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
-        glBindVertexArray(0);
+        planetProgram.use();
+        glm::mat4  view = camera.GetViewMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(planetProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glm::mat4 projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 100.0f);
+        glUniformMatrix4fv(glGetUniformLocation(planetProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glm::mat4 model;
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(planetProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(model));
+        planetModel.draw(planetProgram.getProgram());
         
+        rockProgram.use();
+        glUniformMatrix4fv(glGetUniformLocation(rockProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(rockProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        for (GLuint i = 0; i < amount; i++)
+        {
+            glUniformMatrix4fv(glGetUniformLocation(rockProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
+            rockModel.draw(rockProgram.getProgram());
+        }
+    
         //Misc
         glfwSwapBuffers(window);
         glfwPollEvents();
         do_movement();
     }
-    
-    glDeleteBuffers(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &vboInstance);
     
     glfwDestroyWindow(window);
     glfwTerminate();

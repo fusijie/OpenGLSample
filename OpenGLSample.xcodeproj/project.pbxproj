@@ -35,6 +35,12 @@
 		85681C761B52CBDC002B7B8C /* container_specular.png in Copy Files */ = {isa = PBXBuildFile; fileRef = 85681C751B52CBD5002B7B8C /* container_specular.png */; };
 		85E22D8F1B838FBE0042E516 /* instancing.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22D8D1B838FA20042E516 /* instancing.vs */; };
 		85E22D901B838FBE0042E516 /* instancing.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22D8E1B838FAE0042E516 /* instancing.fs */; };
+		85E22DA71B84D31E0042E516 /* planet in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22DA61B84D3120042E516 /* planet */; };
+		85E22DA81B84D35D0042E516 /* planet.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22DA31B84CDD60042E516 /* planet.fs */; };
+		85E22DA91B84D35D0042E516 /* planet.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22DA21B84CDCA0042E516 /* planet.vs */; };
+		85E22DAA1B84D35D0042E516 /* rock.vs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22DA41B84CDFB0042E516 /* rock.vs */; };
+		85E22DAB1B84D35D0042E516 /* rock.fs in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22DA51B84CE0A0042E516 /* rock.fs */; };
+		85E22DAD1B84D53B0042E516 /* rock in Copy Files */ = {isa = PBXBuildFile; fileRef = 85E22DAC1B84D5200042E516 /* rock */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -44,6 +50,12 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				85E22DAD1B84D53B0042E516 /* rock in Copy Files */,
+				85E22DA81B84D35D0042E516 /* planet.fs in Copy Files */,
+				85E22DA91B84D35D0042E516 /* planet.vs in Copy Files */,
+				85E22DAA1B84D35D0042E516 /* rock.vs in Copy Files */,
+				85E22DAB1B84D35D0042E516 /* rock.fs in Copy Files */,
+				85E22DA71B84D31E0042E516 /* planet in Copy Files */,
 				85E22D8F1B838FBE0042E516 /* instancing.vs in Copy Files */,
 				85E22D901B838FBE0042E516 /* instancing.fs in Copy Files */,
 				854114C51B82411C00181A11 /* nanosuit_geometry.vs in Copy Files */,
@@ -150,6 +162,12 @@
 		85681C751B52CBD5002B7B8C /* container_specular.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = container_specular.png; path = OpenGLSample/Resources/container_specular.png; sourceTree = "<group>"; };
 		85E22D8D1B838FA20042E516 /* instancing.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = instancing.vs; sourceTree = "<group>"; };
 		85E22D8E1B838FAE0042E516 /* instancing.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = instancing.fs; sourceTree = "<group>"; };
+		85E22DA21B84CDCA0042E516 /* planet.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = planet.vs; sourceTree = "<group>"; };
+		85E22DA31B84CDD60042E516 /* planet.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = planet.fs; sourceTree = "<group>"; };
+		85E22DA41B84CDFB0042E516 /* rock.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rock.vs; sourceTree = "<group>"; };
+		85E22DA51B84CE0A0042E516 /* rock.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = rock.fs; sourceTree = "<group>"; };
+		85E22DA61B84D3120042E516 /* planet */ = {isa = PBXFileReference; lastKnownFileType = folder; name = planet; path = OpenGLSample/Resources/planet; sourceTree = "<group>"; };
+		85E22DAC1B84D5200042E516 /* rock */ = {isa = PBXFileReference; lastKnownFileType = folder; name = rock; path = OpenGLSample/Resources/rock; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -238,6 +256,8 @@
 		854D5C0F1B31287A006BF4B1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				85E22DAC1B84D5200042E516 /* rock */,
+				85E22DA61B84D3120042E516 /* planet */,
 				8504D6FB1B77BB650089DA05 /* skybox */,
 				8551ED2F1B577B6A00A10476 /* nanosuit */,
 				85681C751B52CBD5002B7B8C /* container_specular.png */,
@@ -331,6 +351,10 @@
 				854114C41B823F9400181A11 /* nanosuit_geometry.fs */,
 				85E22D8D1B838FA20042E516 /* instancing.vs */,
 				85E22D8E1B838FAE0042E516 /* instancing.fs */,
+				85E22DA31B84CDD60042E516 /* planet.fs */,
+				85E22DA21B84CDCA0042E516 /* planet.vs */,
+				85E22DA41B84CDFB0042E516 /* rock.vs */,
+				85E22DA51B84CE0A0042E516 /* rock.fs */,
 			);
 			name = Shaders;
 			path = OpenGLSample/Shaders;
