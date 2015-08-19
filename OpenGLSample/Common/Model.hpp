@@ -51,10 +51,11 @@ public:
             glDeleteBuffers(1, &this->meshes[i].getEBO());
         }
     }
-private:
+    
     vector<Mesh> meshes;
-    string directory;
     vector<Texture> textures_loaded;
+private:
+    string directory;
 
     void loadModel(string filename)
     {

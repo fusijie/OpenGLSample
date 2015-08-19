@@ -183,6 +183,22 @@ int main(int argc, const char * argv[]) {
         modelMatrices[i] = model;
     }
     
+    for (GLuint i = 0; i < rockModel.meshes.size(); i++) {
+        GLuint vao = rockModel.meshes[i].getVAO();
+        glBindVertexArray(vao);
+        GLuint vbo;
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+        GLsizei vec4Size = sizeof(glm::vec4);
+        GLint attribModel = glGetAttribLocation(rockProgram.getProgram(), "instanceMatrix");
+        for (GLuint i = 0; i < 4; i++) {
+            glEnableVertexAttribArray(attribModel + i);
+            glVertexAttribPointer(attribModel + i, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (GLvoid*)(i * vec4Size));
+            glVertexAttribDivisor(attribModel + i, 1);
+        }
+        glBindVertexArray(0);
+    }
     
     while (!glfwWindowShouldClose(window)) {
         
@@ -209,10 +225,12 @@ int main(int argc, const char * argv[]) {
         rockProgram.use();
         glUniformMatrix4fv(glGetUniformLocation(rockProgram.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(rockProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        for (GLuint i = 0; i < amount; i++)
+        glBindTexture(GL_TEXTURE_2D, rockModel.textures_loaded[0].id);
+        for (GLuint i = 0; i < rockModel.meshes.size(); i++)
         {
-            glUniformMatrix4fv(glGetUniformLocation(rockProgram.getProgram(), "model"), 1, GL_FALSE, glm::value_ptr(modelMatrices[i]));
-            rockModel.draw(rockProgram.getProgram());
+            glBindVertexArray(rockModel.meshes[i].getVAO());
+            glDrawElementsInstanced(GL_TRIANGLES, rockModel.meshes[i].vertices.size(), GL_UNSIGNED_INT, 0, amount);
+            glBindVertexArray(0);
         }
     
         //Misc
